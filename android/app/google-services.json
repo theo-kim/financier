@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1067433528375",
+    "project_id": "financier-83b33",
+    "storage_bucket": "financier-83b33.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067433528375:android:d0f7dd5711c36e25c583b2",
+        "android_client_info": {
+          "package_name": "com.example.financier"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1067433528375-l0u3r2prbq7elr2fht1chkd8sut159g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGljON_EnliSXocyMwyMvSGdsxLZgGs8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067433528375-l0u3r2prbq7elr2fht1chkd8sut159g0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
