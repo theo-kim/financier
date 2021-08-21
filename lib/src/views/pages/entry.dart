@@ -47,11 +47,6 @@ class _EntryPageState extends State<EntryPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget transactionStatusMessage = Container(
       decoration: BoxDecoration(
@@ -148,7 +143,7 @@ class _EntryPageState extends State<EntryPage> {
           }
         },
         tooltip: 'Submit',
-        child: Icon(Icons.add),
+        child: Icon(Icons.save_rounded),
       ),
     );
   }

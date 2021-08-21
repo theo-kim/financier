@@ -19,4 +19,20 @@ class AccountActions {
     _cache = accounts;
     return accounts;
   }
+
+  Future<List<Account>> getAccountsByType(AccountType type) async {
+    final result = <Account>[];
+
+    if (_cache == null) {
+      await getAllAccounts();
+    }
+
+    for (Account a in _cache!) {
+      if (a.type == type) {
+        result.add(a);
+      }
+    }
+
+    return result;
+  }
 }
