@@ -1,8 +1,11 @@
-import 'package:built_value/serializer.dart';
+import 'package:financier/src/components/appbar.dart';
+import 'package:financier/src/components/dynamic-scaffold.dart';
+import 'package:financier/src/components/fields/account-dropdown.dart';
+import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/operations/accounts.dart';
-import 'package:financier/src/views/components/navigation.dart';
+import 'package:financier/src/components/navigation.dart';
 import 'package:flutter/material.dart';
 
 class AccountsPage extends StatefulWidget {
@@ -19,13 +22,17 @@ class _AccountsPageState extends State<AccountsPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-            title: Text(widget.title),
+      child: DynamicScaffold(
+        appBar: StanrdardAppBar(
+            title: widget.title,
             bottom: TabBar(
               tabs: [
-                Tab(icon: Text("Income")),
-                Tab(icon: Text("Expense")),
+                Tab(
+                    icon:
+                        Text("Income", style: TextStyle(color: Colors.black))),
+                Tab(
+                    icon: Text("Expense"),
+                    style: TextStyle(color: Colors.black)),
                 Tab(icon: Text("Asset")),
                 Tab(icon: Text("Liability")),
               ],
@@ -41,13 +48,14 @@ class _AccountsPageState extends State<AccountsPage> {
           tooltip: 'New Account',
           child: Icon(Icons.add),
           onPressed: () {
-            showModalBottomSheet<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return NewAccountForm(
-                    onSubmit: (account) => print(account),
-                  );
-                });
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) =>
+                    NewAccountForm(onSubmit: print),
+                fullscreenDialog: true,
+              ),
+            );
           },
         ),
       ),
@@ -109,35 +117,65 @@ class NewAccountForm extends StatelessWidget {
   NewAccountForm({required this.onSubmit});
 
   final void Function(Account newAccount) onSubmit;
+
   final _formKey = GlobalKey<FormState>();
   final _account = AccountBuilder();
 
+  void _saveParentAccount(Account? a) {
+    if (a == null) {
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Form(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('New Account'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Form(
             key: _formKey,
             child: Column(
               children: [
-                AccountPropertyField(
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: AccountPropertyField(
                     name: "Account Name",
                     errorMessage: "Account name is required",
-                    onSaved: (String? value) => _account.name = value!),
-                AccountPropertyField(
+                    onSaved: (String? value) => _account.name = value!,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: AccountPropertyField(
                     name: "Account Memo",
                     required: false,
                     errorMessage: "",
-                    onSaved: (String? value) => _account.memo = value),
-                AccountPropertyField(
-                    name: "Starting Balance",
-                    errorMessage: "",
+                    onSaved: (String? value) => _account.memo = value,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: CurrencyField(
+                    errorMessage: '',
                     required: false,
-                    validator: (String? value) =>
-                        double.tryParse(value!) != null,
-                    onSaved: (String? value) => _account.startingBalance =
-                        (value == null) ? 0.0 : double.parse(value)),
+                    label: 'Starting Balance',
+                    onSaved: (double amount) {
+                      _account.startingBalance = amount;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: AccountDropdownField(
+                    label: "Parent Account",
+                    onSaved: _saveParentAccount,
+                    errorMessage: "",
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -145,10 +183,23 @@ class NewAccountForm extends StatelessWidget {
                       onSubmit(_account.build());
                     }
                   },
-                  child: Text("Submit"),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 10.0,
+                      bottom: 10.0,
+                      left: 20.0,
+                      right: 20.0,
+                    ),
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
                 )
               ],
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }

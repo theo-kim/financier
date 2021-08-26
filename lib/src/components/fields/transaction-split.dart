@@ -1,4 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:financier/src/components/fields/account-dropdown.dart';
+import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/accounts.dart';
@@ -82,27 +84,6 @@ class _SplitEntryState extends State<SplitEntry> {
   double? _value;
   Account? _account;
   int _updated = 0;
-  List<Account> _accounts = <Account>[];
-
-  @override
-  void initState() {
-    super.initState();
-    AccountActions.manager.getAllAccounts().then((accounts) {
-      setState(() {
-        _accounts = accounts;
-      });
-    });
-  }
-
-  Future<List<Account>> _findAccount(String filter) async {
-    List<Account> results = [];
-    for (int i = 0; i < _accounts.length; ++i) {
-      if (_accounts[i].toString().contains(filter)) {
-        results.add(_accounts[i]);
-      }
-    }
-    return results;
-  }
 
   void _saveState() {
     if (_updated > 0 && _account != null && _value != null) {
@@ -128,51 +109,26 @@ class _SplitEntryState extends State<SplitEntry> {
           children: <Widget>[
             Flexible(
               flex: 4,
-              child: TextFormField(
-                validator: (value) {
-                  if (double.tryParse(value as String) == null) {
-                    return "Amounts must be a number";
-                  }
-                  return null;
-                },
-                onSaved: (String? value) {
-                  _value = double.parse(value!);
+              child: CurrencyField(
+                label: "Amount",
+                onSaved: (double account) {
+                  _value = account;
                   _saveState();
                 },
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Amount",
-                  labelStyle: TextStyle(fontSize: 16.0),
-                  prefixIcon: Icon(
-                    Icons.attach_money,
-                    color: Colors.black,
-                    size: 16.0,
-                  ),
-                  contentPadding: EdgeInsets.all(10.0),
-                ),
+                errorMessage:
+                    'You need to specify a value for this transaction',
               ),
             ),
             Spacer(flex: 1),
             Flexible(
               flex: 7,
-              child: DropdownSearch<Account>(
-                validator: (Account? account) {
-                  if (account == null) {
-                    return "You must assign an account to your transaction";
-                  }
-                  return null;
-                },
+              child: AccountDropdownField(
+                label: "Account",
                 onSaved: (Account? account) {
                   _account = account!;
                   _saveState();
                 },
-                autoFocusSearchBox: true,
-                showSearchBox: true,
-                mode: Mode.BOTTOM_SHEET,
-                label: "Account",
-                onFind: (String filter) => _findAccount(filter),
-                itemAsString: (Account a) => a.name,
+                errorMessage: "You must assign an account to this transaction",
               ),
             ),
             Flexible(

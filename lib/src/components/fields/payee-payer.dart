@@ -8,7 +8,7 @@ class PayeePayerFormField extends StandardFormField {
   Widget build(BuildContext context) {
     return TextFormField(
       validator: (value) {
-        if (this.required && (value == null || value.length == 0)) {
+        if (this.required && value == null) {
           return "Payer/Payee field is required";
         }
         return null;

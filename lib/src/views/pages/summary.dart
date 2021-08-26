@@ -1,5 +1,7 @@
+import 'package:financier/src/components/appbar.dart';
+import 'package:financier/src/components/dynamic-scaffold.dart';
+import 'package:financier/src/components/navigation.dart';
 import 'package:flutter/material.dart';
-import '../components/navigation.dart';
 
 class SummaryPage extends StatefulWidget {
   SummaryPage({Key? key, required this.title}) : super(key: key);
@@ -32,13 +34,16 @@ class _SummaryPageState extends State<SummaryPage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
+    return DynamicScaffold(
+      appBar: StandardAppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: widget.title,
       ),
       drawer: NavigationDrawer(activePage: widget.title),
+      body: Center(
+        child: Text("hello world!"),
+      ),
       // body: Center(
       //   // Center is a layout widget. It takes a single child and positions it
       //   // in the middle of the parent.

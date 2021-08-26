@@ -1,11 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financier/src/components/appbar.dart';
+import 'package:financier/src/components/dynamic-scaffold.dart';
 import 'package:financier/src/components/fields/payee-payer.dart';
 import 'package:financier/src/components/fields/transaction-date.dart';
 import 'package:financier/src/components/fields/transaction-details.dart';
 import 'package:financier/src/components/fields/transaction-split.dart';
+import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
-import '../components/navigation.dart';
+
 import '../../models/transaction.dart' as Trans;
 
 // TODO: https://github.com/material-components/material-components-flutter-adaptive/blob/develop/adaptive_navigation/example/lib/default_scaffold.dart
@@ -115,9 +117,9 @@ class _EntryPageState extends State<EntryPage> {
       ),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+    return DynamicScaffold(
+      appBar: StandardAppBar(
+        title: widget.title,
       ),
       drawer: NavigationDrawer(activePage: widget.title),
       body: SingleChildScrollView(child: newTransactionForm),
