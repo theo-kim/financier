@@ -11,6 +11,8 @@ class StandardAppBar extends AppBar {
             ),
           ),
           elevation: 0,
-          backgroundColor: Color.fromARGB(255, 250, 255, 184),
+          shape: Border(
+            bottom: BorderSide(color: Colors.grey, width: 1.0),
+          ),
         );
 }

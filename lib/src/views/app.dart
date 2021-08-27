@@ -29,7 +29,7 @@ class _AppState extends State<MyApp> {
             return MaterialApp(
               title: 'Finacier',
               theme: ThemeData(
-                primarySwatch: Colors.blue,
+                primarySwatch: Colors.yellow,
               ),
               home: SummaryPage(title: "Summary"),
             );

@@ -23,19 +23,21 @@ class _AccountsPageState extends State<AccountsPage> {
     return DefaultTabController(
       length: 4,
       child: DynamicScaffold(
-        appBar: StanrdardAppBar(
+        appBar: StandardAppBar(
             title: widget.title,
             bottom: TabBar(
-              tabs: [
-                Tab(
-                    icon:
-                        Text("Income", style: TextStyle(color: Colors.black))),
-                Tab(
-                    icon: Text("Expense"),
-                    style: TextStyle(color: Colors.black)),
-                Tab(icon: Text("Asset")),
-                Tab(icon: Text("Liability")),
-              ],
+              tabs: <String>["Income", "Expense", "Asset", "Liability"]
+                  .map(
+                    (String e) => Tab(
+                      icon: Text(
+                        e,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
             )),
         drawer: NavigationDrawer(activePage: widget.title),
         body: TabBarView(children: [
