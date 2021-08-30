@@ -1,5 +1,6 @@
 import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/transactions.dart';
+import 'package:financier/src/views/primary.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'pages/summary.dart';
@@ -31,7 +32,7 @@ class _AppState extends State<MyApp> {
               theme: ThemeData(
                 primarySwatch: Colors.yellow,
               ),
-              home: SummaryPage(title: "Summary"),
+              home: PrimaryStructure(),
             );
           }
           return MaterialApp(

@@ -1,25 +1,42 @@
-import 'package:financier/src/views/pages/account.dart';
-import 'package:financier/src/views/pages/entry.dart';
-import 'package:financier/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
 
-class NavigationDrawer extends StatelessWidget {
-  NavigationDrawer({Key? key, required this.activePage, this.elevated = true})
+class NavigationDrawer extends StatefulWidget {
+  NavigationDrawer(
+      {Key? key,
+      required this.activePage,
+      required this.navigator,
+      required this.onPageChange,
+      this.elevated = true})
       : super(key: key);
 
   final String activePage;
+  final Function(String route) onPageChange;
+  final GlobalKey<NavigatorState> navigator;
   bool elevated;
 
   @override
+  _NavigationDrawerState createState() => _NavigationDrawerState();
+}
+
+class _NavigationDrawerState extends State<NavigationDrawer> {
+  late String _activePage;
+
+  @override
+  void initState() {
+    _activePage = widget.activePage;
+    super.initState();
+  }
+
+  @override
   Drawer build(BuildContext context) {
-    final pages = <String, Widget>{
-      "Summary": SummaryPage(title: "Summary"),
-      "Accounts": AccountsPage(title: "Accounts"),
-      "Ledger Entry": EntryPage(title: "Ledger Entry"),
+    final pages = <String, String>{
+      "Summary": "/",
+      "Accounts": "/accounts",
+      "Ledger Entry": "/entry",
     };
 
     return Drawer(
-      elevation: (elevated ? 16.0 : 0.0),
+      elevation: (widget.elevated ? 16.0 : 0.0),
       child: Container(
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 245, 245, 245),
@@ -46,43 +63,42 @@ class NavigationDrawer extends StatelessWidget {
                 )
               ] +
               pages.entries
-                  .map<Widget>((e) => NavigationEntry(
-                        title: e.key,
-                        destination: e.value,
-                        selected: activePage,
-                      ))
+                  .map<Widget>(
+                    (e) => Ink(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: ListTileTheme(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            selectedColor: Colors.black,
+                            selectedTileColor:
+                                Theme.of(context).primaryColorDark,
+                            child: ListTile(
+                              title: Text(e.key),
+                              selected: _activePage == e.key,
+                              onTap: () {
+                                print(widget.elevated);
+                                if (widget.elevated) {
+                                  widget.onPageChange(e.key);
+                                  Navigator.of(context).pop();
+                                } else
+                                  setState(() {
+                                    _activePage = e.key;
+                                  });
+                                Navigator.of(widget.navigator.currentContext!)
+                                    .pushReplacementNamed(e.value);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
         ),
-      ),
-    );
-  }
-}
-
-class NavigationEntry extends StatelessWidget {
-  NavigationEntry(
-      {Key? key,
-      required this.title,
-      required this.destination,
-      required this.selected})
-      : super(key: key);
-
-  final String title;
-  final Widget destination;
-  final String selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTileTheme(
-      selectedColor: Colors.black,
-      tileColor: Colors.black,
-      selectedTileColor: Theme.of(context).primaryColorDark,
-      child: ListTile(
-        title: Text(title),
-        selected: selected == title,
-        onTap: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => destination));
-        },
       ),
     );
   }

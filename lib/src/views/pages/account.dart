@@ -9,9 +9,7 @@ import 'package:financier/src/components/navigation.dart';
 import 'package:flutter/material.dart';
 
 class AccountsPage extends StatefulWidget {
-  AccountsPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  AccountsPage({Key? key}) : super(key: key);
 
   @override
   _AccountsPageState createState() => _AccountsPageState();
@@ -20,7 +18,12 @@ class AccountsPage extends StatefulWidget {
 class _AccountsPageState extends State<AccountsPage> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    return AccountList(AccountType.income);
+  }
+}
+
+/*
+DefaultTabController(
       length: 4,
       child: DynamicScaffold(
         appBar: StandardAppBar(
@@ -61,9 +64,8 @@ class _AccountsPageState extends State<AccountsPage> {
           },
         ),
       ),
-    );
-  }
-}
+    )
+    */
 
 class AccountList extends StatefulWidget {
   AccountList(this.type);

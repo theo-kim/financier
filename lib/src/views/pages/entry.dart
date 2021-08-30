@@ -13,9 +13,7 @@ import '../../models/transaction.dart' as Trans;
 // TODO: https://github.com/material-components/material-components-flutter-adaptive/blob/develop/adaptive_navigation/example/lib/default_scaffold.dart
 
 class EntryPage extends StatefulWidget {
-  EntryPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  EntryPage({Key? key}) : super(key: key);
 
   @override
   _EntryPageState createState() => _EntryPageState();
@@ -117,12 +115,13 @@ class _EntryPageState extends State<EntryPage> {
       ),
     );
 
-    return DynamicScaffold(
-      appBar: StandardAppBar(
-        title: widget.title,
-      ),
-      drawer: NavigationDrawer(activePage: widget.title),
-      body: SingleChildScrollView(child: newTransactionForm),
+    return SingleChildScrollView(child: newTransactionForm);
+  }
+}
+
+/*
+
+,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
@@ -147,6 +146,6 @@ class _EntryPageState extends State<EntryPage> {
         tooltip: 'Submit',
         child: Icon(Icons.save_rounded),
       ),
-    );
-  }
-}
+    )
+
+    */

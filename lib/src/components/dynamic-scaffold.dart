@@ -35,6 +35,8 @@ class _DynamicScaffoldState extends State<DynamicScaffold> {
         widget.drawer!,
         Expanded(child: scaffold),
       ]);
+    } else {
+      widget.drawer!.elevated = true;
     }
     return scaffold;
   }
