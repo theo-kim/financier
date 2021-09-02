@@ -5,7 +5,6 @@ import 'package:financier/src/views/pages/account.dart';
 import 'package:financier/src/views/pages/entry.dart';
 import 'package:financier/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 class PrimaryStructure extends StatefulWidget {
   PrimaryStructure();
@@ -19,7 +18,9 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   Route<dynamic> _router(RouteSettings settings) {
-    return MaterialPageRoute(builder: (context) {
+    // final isMobile = MediaQuery.of(context).size.shortestSide < 700;
+
+    final _builder = (BuildContext context) {
       if (settings.name == "/") {
         return SummaryPage();
       } else if (settings.name == "/accounts") {
@@ -29,7 +30,12 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
       } else {
         return SummaryPage();
       }
-    });
+    };
+
+    return PageRouteBuilder(
+      pageBuilder: (context, animation1, animation2) => _builder(context),
+      transitionDuration: Duration.zero,
+    );
   }
 
   @override
@@ -44,7 +50,8 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
       appBar: StandardAppBar(
         title: _title,
       ),
-      drawer: NavigationDrawer(
+      drawerBuilder: (bool isHidden) => NavigationDrawer(
+        elevated: isHidden,
         activePage: _title,
         onPageChange: (String route) {
           setState(() => _title = route);

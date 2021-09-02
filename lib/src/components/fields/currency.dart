@@ -15,17 +15,23 @@ class CurrencyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      validator: (value) {
-        if (this.required && value == null) {
+      validator: (String? value) {
+        if (this.required && (value == null || value.length == 0)) {
           return errorMessage;
         }
-        if (double.tryParse(value as String) == null) {
-          return errorMessage;
+        if ((value != null && value.length > 0) &&
+            double.tryParse(value) == null) {
+          return "You must express your currency in a decimal number";
         }
         return null;
       },
       onSaved: (String? value) {
-        double v = double.parse(value!);
+        double v;
+        if (value == null || value.length == 0)
+          v = 0.0;
+        else {
+          v = double.parse(value);
+        }
         this.onSaved(v);
       },
       keyboardType: TextInputType.number,

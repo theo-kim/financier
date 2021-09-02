@@ -12,7 +12,7 @@ class NavigationDrawer extends StatefulWidget {
   final String activePage;
   final Function(String route) onPageChange;
   final GlobalKey<NavigatorState> navigator;
-  bool elevated;
+  final bool elevated;
 
   @override
   _NavigationDrawerState createState() => _NavigationDrawerState();
@@ -48,6 +48,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           ),
         ),
         child: ListView(
+          physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.all(1.0),
           children: <Widget>[
                 DrawerHeader(
@@ -57,7 +58,12 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
                   ),
                   decoration: ShapeDecoration(
-                    shape: Border(),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(40.0),
+                          bottomRight: Radius.circular(40.0),
+                        ),
+                        side: BorderSide(color: Color(0xf0f0f0), width: 0.5)),
                     color: Theme.of(context).primaryColorLight,
                   ),
                 )
@@ -80,14 +86,14 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                               title: Text(e.key),
                               selected: _activePage == e.key,
                               onTap: () {
-                                print(widget.elevated);
+                                widget.onPageChange(e.key);
                                 if (widget.elevated) {
-                                  widget.onPageChange(e.key);
                                   Navigator.of(context).pop();
-                                } else
+                                } else {
                                   setState(() {
                                     _activePage = e.key;
                                   });
+                                }
                                 Navigator.of(widget.navigator.currentContext!)
                                     .pushReplacementNamed(e.value);
                               },

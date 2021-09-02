@@ -14,7 +14,8 @@ class TransactionActions {
     throw UnimplementedError();
   }
 
-  Future<void> newTransaction(My.TransactionBuilder transaction) async {
+  Future<DocumentReference> newTransaction(
+      My.TransactionBuilder transaction) async {
     DocumentReference ref =
         FirebaseFirestore.instance.collection("transactions").doc();
     transaction.id =
@@ -27,5 +28,7 @@ class TransactionActions {
               My.Transaction.serializer, transaction) as Map<String, Object?>,
         )
         .set(transaction.build());
+
+    return ref;
   }
 }

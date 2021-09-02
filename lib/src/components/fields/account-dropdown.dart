@@ -25,7 +25,8 @@ class _AccountDropdownFieldState extends State<AccountDropdownField> {
   Future<List<Account>> _findAccount(String filter) async {
     List<Account> results = [];
     for (int i = 0; i < _accounts.length; ++i) {
-      if (_accounts[i].toString().contains(filter)) {
+      if (_accounts[i].toString().contains(filter) &&
+          _accounts[i].type != AccountType.none) {
         results.add(_accounts[i]);
       }
     }
@@ -51,6 +52,7 @@ class _AccountDropdownFieldState extends State<AccountDropdownField> {
         }
         return null;
       },
+      showClearButton: true,
       onSaved: widget.onSaved,
       autoFocusSearchBox: true,
       showSearchBox: true,
