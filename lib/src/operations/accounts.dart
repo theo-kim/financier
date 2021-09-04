@@ -4,6 +4,14 @@ import 'package:financier/src/models/reference.dart';
 import 'package:financier/src/models/serializer.dart';
 import 'package:financier/src/operations/collections.dart';
 
+extension ListExtension on List<Account> {
+  void replace(Account oldAccount, Account newAccount) {
+    int index = this.indexOf(oldAccount);
+    this.insert(index, newAccount);
+    this.removeAt(index + 1);
+  }
+}
+
 class AccountActions {
   static late final AccountActions manager;
 
@@ -58,7 +66,7 @@ class AccountActions {
         FirebaseFirestore.instance.collection("accounts").doc();
     account.id = BuiltDocumentReference((b) => b..reference = ref).toBuilder();
     Account a = account.build();
-    ref
+    await ref
         .withConverter(
           fromFirestore: (snapshot, _) =>
               serializers.deserializeWith(Account.serializer, snapshot.data())!,
@@ -72,7 +80,8 @@ class AccountActions {
 
   Account getCachedAccount(Account a) {
     return _cache!.firstWhere((element) => element == a,
-        orElse: () => throw Exception("parent account does not exist"));
+        orElse: () =>
+            throw Exception("account ${a.name} does not exist in cache"));
   }
 
   Account getCachedAccountByReference(DocumentReference ref) {
@@ -88,12 +97,13 @@ class AccountActions {
     if (child.id.reference == null)
       throw Exception("Trying to update a child which does not yet exist");
     // Get the parent from the cache and update it with the reference to the child
-    final Account a = getCachedAccount(parent).rebuild((b) {
+    Account aOld = getCachedAccount(parent);
+    Account a = aOld.rebuild((b) {
       b.children.add(
           BuiltDocumentReference((b) => b..reference = child.id.reference));
     });
     // update firestore
-    a.id.reference!
+    await a.id.reference!
         .withConverter(
           fromFirestore: (snapshot, _) =>
               serializers.deserializeWith(Account.serializer, snapshot.data())!,
@@ -101,14 +111,16 @@ class AccountActions {
               Account.serializer, transaction) as Map<String, Object?>,
         )
         .set(a);
+    _cache!.replace(aOld, a);
     // Get the child from the cache and update it with the reference to the child
-    final Account c = getCachedAccount(child).rebuild((b) {
+    Account cOld = getCachedAccount(child);
+    Account c = cOld.rebuild((b) {
       b.parent =
           BuiltDocumentReference((b) => b..reference = parent.id.reference)
               .toBuilder();
     });
     // update firestore
-    c.id.reference!
+    await c.id.reference!
         .withConverter(
           fromFirestore: (snapshot, _) =>
               serializers.deserializeWith(Account.serializer, snapshot.data())!,
@@ -116,6 +128,7 @@ class AccountActions {
               Account.serializer, transaction) as Map<String, Object?>,
         )
         .set(c);
+    _cache!.replace(cOld, c);
     return child;
   }
 
@@ -131,5 +144,42 @@ class AccountActions {
       buff.insert(0, csr.name);
     }
     return buff.join("/") + "/";
+  }
+
+  Future<void> deleteAccount(Account a) async {
+    if (_cache == null) await getAllAccounts();
+    if (a.id.reference == null) throw "Cannot delete unreferenced account";
+    if (a.type == AccountType.none) throw "Cannot delete root account";
+    // Remove this account from its parent's children
+    final Account pOld = getCachedAccountByReference(a.parent!.reference!);
+    final Account p = pOld.rebuild((b) {
+      b.children
+          .remove(BuiltDocumentReference((b) => b..reference = a.id.reference));
+    });
+    // update firestore
+    await p.id.reference!
+        .withConverter(
+          fromFirestore: (snapshot, _) =>
+              serializers.deserializeWith(Account.serializer, snapshot.data())!,
+          toFirestore: (transaction, _) => serializers.serializeWith(
+              Account.serializer, transaction) as Map<String, Object?>,
+        )
+        .set(p);
+    _cache!.replace(pOld, p);
+    try {
+      getCachedAccount(p);
+    } catch (e) {
+      print(e);
+    }
+    // If there are children, make them orphans
+    if (a.children.length > 0) {
+      for (BuiltDocumentReference r in a.children) {
+        await addChildAccount(p, getCachedAccountByReference(r.reference!));
+      }
+    }
+    // Remove deleted account from cache
+    _cache!.remove(a);
+    // Remove from database
+    await a.id.reference!.delete();
   }
 }

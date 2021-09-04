@@ -9,7 +9,7 @@ class TransactionActions {
 
   List<My.Transaction>? _cache;
 
-  Future<List<My.Transaction>> getAllAccounts() async {
+  Future<List<My.Transaction>> getAllTransactions() async {
     // TODO
     throw UnimplementedError();
   }

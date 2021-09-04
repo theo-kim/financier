@@ -27,7 +27,10 @@ class _AccountsPageState extends State<AccountsPage> {
   void _saveAccount(Account newAccount, Account? parent, BuildContext context) {
     AccountActions.manager.newAccount(newAccount.toBuilder()).then((child) {
       if (parent != null) {
-        AccountActions.manager.addChildAccount(parent, child);
+        AccountActions.manager.addChildAccount(parent, child).then((_) {
+          Navigator.of(context).pop();
+          _accountList.currentState!.reload();
+        });
       } else {
         AccountActions.manager.getRootAccount().then((Account root) {
           AccountActions.manager.addChildAccount(root, child).then((_) {
@@ -80,6 +83,16 @@ class _AccountListState extends State<AccountList> {
     setState(() {});
   }
 
+  void _showAccountDetails(Account a) {
+    showModalBottomSheet(
+      context: context,
+      builder: (c) =>
+          AccountDetails(account: a, context: c, accountList: widget.key),
+      isScrollControlled: true,
+      enableDrag: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Account>>(
@@ -107,7 +120,10 @@ class _AccountListState extends State<AccountList> {
         return ListView.builder(
           itemCount: accounts.length,
           itemBuilder: (BuildContext context, int index) {
-            return AccountListing(account: accounts[index]);
+            return AccountListing(
+              account: accounts[index],
+              onTap: _showAccountDetails,
+            );
           },
         );
       },
@@ -116,9 +132,10 @@ class _AccountListState extends State<AccountList> {
 }
 
 class AccountListing extends StatelessWidget {
-  AccountListing({required this.account});
+  AccountListing({required this.account, required this.onTap});
 
   final Account account;
+  final void Function(Account) onTap;
 
   Container _accountTypeBadgeGen(AccountType t) {
     late Color backgroundColor;
@@ -153,20 +170,126 @@ class AccountListing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String path = AccountActions.manager.generateAccountPath(account);
     return Material(
-        child: ListTile(
-      onTap: () {},
-      contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
-      title: Column(
+      child: ListTile(
+        onTap: () {
+          this.onTap(this.account);
+        },
+        contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(mainAxisSize: MainAxisSize.min, children: [
-              Text(account.name),
-              _accountTypeBadgeGen(account.type)
-            ])
-          ]),
-    ));
+            if (path.length > 1)
+              Padding(
+                padding: EdgeInsets.only(right: 5.0),
+                child: Text(
+                  path,
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(account.name),
+                _accountTypeBadgeGen(account.type)
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AccountDetails extends StatelessWidget {
+  AccountDetails(
+      {required this.account,
+      required this.context,
+      required this.accountList});
+
+  final Account account;
+  final BuildContext context;
+  final GlobalKey<_AccountListState> accountList;
+
+  @override
+  Widget build(BuildContext context) {
+    String path = AccountActions.manager.generateAccountPath(account);
+
+    return Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  this.account.name,
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        bool? confirm = await showDialog<bool>(
+                          context: this.context,
+                          builder: (ctx) => AlertDialog(
+                              content: (account.children.length > 0)
+                                  ? Text(
+                                      "Are you sure you want to delete this account? This account has children, they will be made children to its parent account.")
+                                  : Text(
+                                      "Are you sure you want to delete this account?"),
+                              actions: [
+                                TextButton(
+                                  child: Text("Yes",
+                                      style: TextStyle(color: Colors.black)),
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                ),
+                                TextButton(
+                                  child: Text("No",
+                                      style: TextStyle(color: Colors.red)),
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                )
+                              ]),
+                        );
+                        if (confirm != null && confirm) {
+                          await AccountActions.manager.deleteAccount(account);
+                          Navigator.pop(context);
+                          accountList.currentState!.reload();
+                        }
+                      },
+                      icon: Icon(Icons.delete, color: Colors.red),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.edit),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Text("Account type: " + account.type.toString().capitalize()),
+          if (account.memo != null && account.memo!.length > 1)
+            Text("Account memo: " + account.memo!),
+          if (path.length > 1)
+            Text("Account Parent: " + path)
+          else
+            Text("This account has no parent"),
+        ]
+            .map((e) => Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: e,
+                ))
+            .toList(),
+      ),
+    );
   }
 }
 

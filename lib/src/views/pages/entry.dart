@@ -115,37 +115,36 @@ class _EntryPageState extends State<EntryPage> {
       ),
     );
 
-    return SingleChildScrollView(child: newTransactionForm);
+    return Stack(children: [
+      SingleChildScrollView(child: newTransactionForm),
+      Positioned(
+        bottom: 20.0,
+        right: 20.0,
+        child: FloatingActionButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              _formKey.currentState!.save();
+              if (_balanceTransaction()) {
+                setState(() {
+                  _balanced = true;
+                });
+                _addTransaction();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Added Transaction')),
+                );
+              } else {
+                setState(() {
+                  _balanced = false;
+                  _transaction.credits.clear();
+                  _transaction.debits.clear();
+                });
+              }
+            }
+          },
+          tooltip: 'Submit',
+          child: Icon(Icons.save_rounded),
+        ),
+      ),
+    ]);
   }
 }
-
-/*
-
-,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            _formKey.currentState!.save();
-            if (_balanceTransaction()) {
-              setState(() {
-                _balanced = true;
-              });
-              _addTransaction();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Added Transaction')),
-              );
-            } else {
-              setState(() {
-                _balanced = false;
-                _transaction.credits.clear();
-                _transaction.debits.clear();
-              });
-            }
-          }
-        },
-        tooltip: 'Submit',
-        child: Icon(Icons.save_rounded),
-      ),
-    )
-
-    */
