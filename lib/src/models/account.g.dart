@@ -92,6 +92,13 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.parent;
+    if (value != null) {
+      result
+        ..add('parent')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(BuiltDocumentReference)));
+    }
     return result;
   }
 
@@ -133,6 +140,11 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
                   specifiedType: const FullType(BuiltDocumentReference))!
               as BuiltDocumentReference);
           break;
+        case 'parent':
+          result.parent.replace(serializers.deserialize(value,
+                  specifiedType: const FullType(BuiltDocumentReference))!
+              as BuiltDocumentReference);
+          break;
       }
     }
 
@@ -153,6 +165,8 @@ class _$Account extends Account {
   final BuiltList<BuiltDocumentReference> children;
   @override
   final BuiltDocumentReference id;
+  @override
+  final BuiltDocumentReference? parent;
 
   factory _$Account([void Function(AccountBuilder)? updates]) =>
       (new AccountBuilder()..update(updates)).build();
@@ -163,7 +177,8 @@ class _$Account extends Account {
       this.memo,
       required this.type,
       required this.children,
-      required this.id})
+      required this.id,
+      this.parent})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         startingBalance, 'Account', 'startingBalance');
@@ -189,7 +204,8 @@ class _$Account extends Account {
         memo == other.memo &&
         type == other.type &&
         children == other.children &&
-        id == other.id;
+        id == other.id &&
+        parent == other.parent;
   }
 
   @override
@@ -197,11 +213,13 @@ class _$Account extends Account {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, startingBalance.hashCode), name.hashCode),
-                    memo.hashCode),
-                type.hashCode),
-            children.hashCode),
-        id.hashCode));
+                $jc(
+                    $jc($jc($jc(0, startingBalance.hashCode), name.hashCode),
+                        memo.hashCode),
+                    type.hashCode),
+                children.hashCode),
+            id.hashCode),
+        parent.hashCode));
   }
 
   @override
@@ -212,7 +230,8 @@ class _$Account extends Account {
           ..add('memo', memo)
           ..add('type', type)
           ..add('children', children)
-          ..add('id', id))
+          ..add('id', id)
+          ..add('parent', parent))
         .toString();
   }
 }
@@ -248,6 +267,11 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
       _$this._id ??= new BuiltDocumentReferenceBuilder();
   set id(BuiltDocumentReferenceBuilder? id) => _$this._id = id;
 
+  BuiltDocumentReferenceBuilder? _parent;
+  BuiltDocumentReferenceBuilder get parent =>
+      _$this._parent ??= new BuiltDocumentReferenceBuilder();
+  set parent(BuiltDocumentReferenceBuilder? parent) => _$this._parent = parent;
+
   AccountBuilder();
 
   AccountBuilder get _$this {
@@ -259,6 +283,7 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
       _type = $v.type;
       _children = $v.children.toBuilder();
       _id = $v.id.toBuilder();
+      _parent = $v.parent?.toBuilder();
       _$v = null;
     }
     return this;
@@ -289,7 +314,8 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
               type: BuiltValueNullFieldError.checkNotNull(
                   type, 'Account', 'type'),
               children: children.build(),
-              id: id.build());
+              id: id.build(),
+              parent: _parent?.build());
     } catch (_) {
       late String _$failedField;
       try {
@@ -297,6 +323,8 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
         children.build();
         _$failedField = 'id';
         id.build();
+        _$failedField = 'parent';
+        _parent?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Account', _$failedField, e.toString());

@@ -28,6 +28,7 @@ abstract class Account implements Built<Account, AccountBuilder> {
   AccountType get type;
   BuiltList<BuiltDocumentReference> get children;
   BuiltDocumentReference get id;
+  BuiltDocumentReference? get parent;
 
   Account._();
 

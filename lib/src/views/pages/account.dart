@@ -27,12 +27,10 @@ class _AccountsPageState extends State<AccountsPage> {
   void _saveAccount(Account newAccount, Account? parent, BuildContext context) {
     AccountActions.manager.newAccount(newAccount.toBuilder()).then((child) {
       if (parent != null) {
-        AccountActions.manager.addChildAccount(parent.toBuilder(), child);
+        AccountActions.manager.addChildAccount(parent, child);
       } else {
         AccountActions.manager.getRootAccount().then((Account root) {
-          AccountActions.manager
-              .addChildAccount(root.toBuilder(), child)
-              .then((_) {
+          AccountActions.manager.addChildAccount(root, child).then((_) {
             Navigator.of(context).pop();
             _accountList.currentState!.reload();
           });

@@ -14,12 +14,13 @@ class TransactionActions {
     throw UnimplementedError();
   }
 
-  Future<DocumentReference> newTransaction(
+  Future<My.Transaction> newTransaction(
       My.TransactionBuilder transaction) async {
     DocumentReference ref =
         FirebaseFirestore.instance.collection("transactions").doc();
     transaction.id =
         BuiltDocumentReference((b) => b..reference = ref).toBuilder();
+    My.Transaction t = transaction.build();
     ref
         .withConverter(
           fromFirestore: (snapshot, _) => serializers.deserializeWith(
@@ -27,8 +28,8 @@ class TransactionActions {
           toFirestore: (transaction, _) => serializers.serializeWith(
               My.Transaction.serializer, transaction) as Map<String, Object?>,
         )
-        .set(transaction.build());
-
-    return ref;
+        .set(t);
+    _cache!.add(t);
+    return t;
   }
 }
