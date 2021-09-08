@@ -5,7 +5,7 @@ import 'package:financier/src/models/transaction.dart' as My;
 import 'package:financier/src/operations/collections.dart';
 
 class TransactionActions {
-  static late final TransactionActions manager;
+  static late TransactionActions manager;
 
   List<My.Transaction>? _cache;
 

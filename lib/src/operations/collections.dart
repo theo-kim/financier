@@ -1,7 +1,5 @@
-import 'package:built_value/built_value.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/entity.dart';
 import 'package:financier/src/models/serializer.dart';
 import 'package:financier/src/models/transaction.dart' as My;
 

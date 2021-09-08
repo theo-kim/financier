@@ -32,7 +32,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     final pages = <String, String>{
       "Summary": "/",
       "Accounts": "/accounts",
-      "Ledger Entry": "/entry",
+      "Transactions": "/transactions",
     };
 
     return Drawer(

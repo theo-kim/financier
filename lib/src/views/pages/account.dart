@@ -4,6 +4,7 @@ import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
 
 extension StringExtension on String {
@@ -13,7 +14,7 @@ extension StringExtension on String {
 }
 
 class AccountsPage extends StatefulWidget {
-  AccountsPage({Key? key}) : super(key: key);
+  AccountsPage() : super();
 
   @override
   _AccountsPageState createState() => _AccountsPageState();
@@ -46,7 +47,10 @@ class _AccountsPageState extends State<AccountsPage> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        AccountList(_filteredType, key: _accountList),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: AccountList(_filteredType, key: _accountList),
+        ),
         Positioned(
           bottom: 20.0,
           right: 20.0,

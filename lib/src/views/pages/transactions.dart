@@ -6,20 +6,67 @@ import 'package:financier/src/components/fields/transaction-details.dart';
 import 'package:financier/src/components/fields/transaction-split.dart';
 import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/operations/transactions.dart';
+import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../models/transaction.dart' as Trans;
 
 // TODO: https://github.com/material-components/material-components-flutter-adaptive/blob/develop/adaptive_navigation/example/lib/default_scaffold.dart
 
-class EntryPage extends StatefulWidget {
-  EntryPage({Key? key}) : super(key: key);
+class TransactionPage extends StatefulWidget {
+  TransactionPage();
 
-  @override
-  _EntryPageState createState() => _EntryPageState();
+  TransactionPageState createState() => TransactionPageState();
 }
 
-class _EntryPageState extends State<EntryPage> {
+class TransactionPageState extends State<TransactionPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      Center(child: Text("Transactions")),
+      Positioned(
+        bottom: 20.0,
+        right: 20.0,
+        child: SpeedDial(
+          icon: Icons.add,
+          tooltip: "Add Transaction",
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.credit_card_rounded),
+              label: "Enter Credit Card Charge",
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.account_balance),
+              label: "Checkbook Entry",
+            ),
+            SpeedDialChild(
+                child: Icon(Icons.book),
+                label: "Manual Ledger Entry",
+                onTap: () => {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        enableDrag: true,
+                        builder: (context) =>
+                            SingleChildScrollView(child: TransactionEntry()),
+                      )
+                    }),
+          ],
+        ),
+      ),
+    ]);
+  }
+}
+
+class TransactionEntry extends StatefulWidget {
+  TransactionEntry({Key? key}) : super(key: key);
+
+  @override
+  _TransactionEntryState createState() => _TransactionEntryState();
+}
+
+class _TransactionEntryState extends State<TransactionEntry> {
   Trans.TransactionBuilder _transaction = Trans.TransactionBuilder();
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
@@ -48,27 +95,6 @@ class _EntryPageState extends State<EntryPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget transactionStatusMessage = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-        border: Border.all(
-            width: 2, color: (_balanced ? Colors.green : Colors.orange)),
-      ),
-      margin: EdgeInsets.only(bottom: 20.0),
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Text(
-          (_balanced
-              ? "Your transaction is currently balanced"
-              : "Your transaction is unbalanced"),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: (_balanced ? Colors.green : Colors.orange),
-              fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-
     Widget newTransactionForm = Form(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       key: _formKey,
@@ -77,7 +103,6 @@ class _EntryPageState extends State<EntryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            transactionStatusMessage,
             TransactionDateField(
               _dateController,
               onSaved: (value) => _transaction.date = value,
@@ -115,14 +140,12 @@ class _EntryPageState extends State<EntryPage> {
       ),
     );
 
-    return Stack(children: [
-      SingleChildScrollView(child: newTransactionForm),
-      Positioned(
-        bottom: 20.0,
-        right: 20.0,
-        child: FloatingActionButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
+    return newTransactionForm;
+  }
+}
+
+/*
+if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
               if (_balanceTransaction()) {
                 setState(() {
@@ -140,11 +163,4 @@ class _EntryPageState extends State<EntryPage> {
                 });
               }
             }
-          },
-          tooltip: 'Submit',
-          child: Icon(Icons.save_rounded),
-        ),
-      ),
-    ]);
-  }
-}
+          }*/

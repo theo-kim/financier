@@ -28,9 +28,13 @@ class _DynamicScaffoldState extends State<DynamicScaffold> {
     NavigationDrawer drawer = widget.drawerBuilder(hideNavDrawer);
 
     Widget scaffold = Scaffold(
-      appBar: widget.appBar,
       drawer: (hideNavDrawer ? drawer : null),
-      body: widget.body,
+      body: Column(children: [
+        widget.appBar,
+        Expanded(
+          child: widget.body,
+        ),
+      ]),
       floatingActionButton: widget.floatingActionButton,
     );
 

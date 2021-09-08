@@ -34,6 +34,7 @@ dependencies:
   dropdown_search: ^0.6.3
   built_collection: ^5.1.0
   built_value: ^8.1.2
+  flutter_speed_dial: ^4.3.0
 
 dev_dependencies:
   build_runner: ^2.1.1

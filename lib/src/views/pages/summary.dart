@@ -1,10 +1,11 @@
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/dynamic-scaffold.dart';
 import 'package:financier/src/components/navigation.dart';
+import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
 
 class SummaryPage extends StatefulWidget {
-  SummaryPage({Key? key}) : super(key: key);
+  SummaryPage() : super();
 
   @override
   _SummaryPageState createState() => _SummaryPageState();

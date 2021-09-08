@@ -13,7 +13,7 @@ extension ListExtension on List<Account> {
 }
 
 class AccountActions {
-  static late final AccountActions manager;
+  static late AccountActions manager;
 
   List<Account>? _cache;
 
