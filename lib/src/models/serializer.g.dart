@@ -15,6 +15,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(BuiltDocumentReference.serializer)
       ..add(Transaction.serializer)
       ..add(TransactionSplit.serializer)
+      ..add(TransactionType.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(BuiltDocumentReference)]),

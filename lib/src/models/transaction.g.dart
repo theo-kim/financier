@@ -6,9 +6,66 @@ part of 'transaction.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
+const TransactionType _$credit_card_charge =
+    const TransactionType._('credit_card_charge');
+const TransactionType _$check = const TransactionType._('check');
+const TransactionType _$transfer = const TransactionType._('transfer');
+const TransactionType _$deposit = const TransactionType._('deposit');
+const TransactionType _$payment = const TransactionType._('payment');
+const TransactionType _$none = const TransactionType._('none');
+
+TransactionType _$valueOf(String name) {
+  switch (name) {
+    case 'credit_card_charge':
+      return _$credit_card_charge;
+    case 'check':
+      return _$check;
+    case 'transfer':
+      return _$transfer;
+    case 'deposit':
+      return _$deposit;
+    case 'payment':
+      return _$payment;
+    case 'none':
+      return _$none;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<TransactionType> _$values =
+    new BuiltSet<TransactionType>(const <TransactionType>[
+  _$credit_card_charge,
+  _$check,
+  _$transfer,
+  _$deposit,
+  _$payment,
+  _$none,
+]);
+
+Serializer<TransactionType> _$transactionTypeSerializer =
+    new _$TransactionTypeSerializer();
 Serializer<Transaction> _$transactionSerializer = new _$TransactionSerializer();
 Serializer<TransactionSplit> _$transactionSplitSerializer =
     new _$TransactionSplitSerializer();
+
+class _$TransactionTypeSerializer
+    implements PrimitiveSerializer<TransactionType> {
+  @override
+  final Iterable<Type> types = const <Type>[TransactionType];
+  @override
+  final String wireName = 'TransactionType';
+
+  @override
+  Object serialize(Serializers serializers, TransactionType object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  TransactionType deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      TransactionType.valueOf(serialized as String);
+}
 
 class _$TransactionSerializer implements StructuredSerializer<Transaction> {
   @override
@@ -45,6 +102,13 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
         ..add('details')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
+    }
+    value = object.type;
+    if (value != null) {
+      result
+        ..add('type')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(TransactionType)));
     }
     return result;
   }
@@ -88,6 +152,11 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
           result.id.replace(serializers.deserialize(value,
                   specifiedType: const FullType(BuiltDocumentReference))!
               as BuiltDocumentReference);
+          break;
+        case 'type':
+          result.type = serializers.deserialize(value,
+                  specifiedType: const FullType(TransactionType))
+              as TransactionType?;
           break;
       }
     }
@@ -159,6 +228,8 @@ class _$Transaction extends Transaction {
   final BuiltList<TransactionSplit> debits;
   @override
   final BuiltDocumentReference id;
+  @override
+  final TransactionType? type;
 
   factory _$Transaction([void Function(TransactionBuilder)? updates]) =>
       (new TransactionBuilder()..update(updates)).build();
@@ -169,7 +240,8 @@ class _$Transaction extends Transaction {
       required this.payer,
       required this.credits,
       required this.debits,
-      required this.id})
+      required this.id,
+      this.type})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(date, 'Transaction', 'date');
     BuiltValueNullFieldError.checkNotNull(payer, 'Transaction', 'payer');
@@ -194,7 +266,8 @@ class _$Transaction extends Transaction {
         payer == other.payer &&
         credits == other.credits &&
         debits == other.debits &&
-        id == other.id;
+        id == other.id &&
+        type == other.type;
   }
 
   @override
@@ -202,11 +275,13 @@ class _$Transaction extends Transaction {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, date.hashCode), details.hashCode),
-                    payer.hashCode),
-                credits.hashCode),
-            debits.hashCode),
-        id.hashCode));
+                $jc(
+                    $jc($jc($jc(0, date.hashCode), details.hashCode),
+                        payer.hashCode),
+                    credits.hashCode),
+                debits.hashCode),
+            id.hashCode),
+        type.hashCode));
   }
 
   @override
@@ -217,7 +292,8 @@ class _$Transaction extends Transaction {
           ..add('payer', payer)
           ..add('credits', credits)
           ..add('debits', debits)
-          ..add('id', id))
+          ..add('id', id)
+          ..add('type', type))
         .toString();
   }
 }
@@ -253,6 +329,10 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
       _$this._id ??= new BuiltDocumentReferenceBuilder();
   set id(BuiltDocumentReferenceBuilder? id) => _$this._id = id;
 
+  TransactionType? _type;
+  TransactionType? get type => _$this._type;
+  set type(TransactionType? type) => _$this._type = type;
+
   TransactionBuilder();
 
   TransactionBuilder get _$this {
@@ -264,6 +344,7 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
       _credits = $v.credits.toBuilder();
       _debits = $v.debits.toBuilder();
       _id = $v.id.toBuilder();
+      _type = $v.type;
       _$v = null;
     }
     return this;
@@ -293,7 +374,8 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
                   payer, 'Transaction', 'payer'),
               credits: credits.build(),
               debits: debits.build(),
-              id: id.build());
+              id: id.build(),
+              type: type);
     } catch (_) {
       late String _$failedField;
       try {

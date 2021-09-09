@@ -5,6 +5,7 @@ import 'package:financier/src/components/fields/transaction-date.dart';
 import 'package:financier/src/components/fields/transaction-details.dart';
 import 'package:financier/src/components/fields/transaction-split.dart';
 import 'package:financier/src/components/navigation.dart';
+import 'package:financier/src/components/transaction-entry-form.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,26 @@ class TransactionPageState extends State<TransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      Center(child: Text("Transactions")),
+      FutureBuilder(
+        future: TransactionActions.manager.getAllTransactions(),
+        builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
+          if (!snapshot.hasData) {
+            return Container(
+              child: Center(
+                child: Text("Could not load accounts"),
+              ),
+            );
+          } else if (snapshot.data!.length == 0) {
+            return Container(
+              child: Center(
+                child: Text("Could not find any accounts, try creating one"),
+              ),
+            );
+          } else {
+            return TransactionList(snapshot.data!);
+          }
+        },
+      ),
       Positioned(
         bottom: 20.0,
         right: 20.0,
@@ -35,23 +55,40 @@ class TransactionPageState extends State<TransactionPage> {
             SpeedDialChild(
               child: Icon(Icons.credit_card_rounded),
               label: "Enter Credit Card Charge",
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        "Not yet implemented, use \"Manual Ledge Entry\" Option"),
+                  ),
+                );
+              },
             ),
             SpeedDialChild(
               child: Icon(Icons.account_balance),
               label: "Checkbook Entry",
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        "Not yet implemented, use \"Manual Ledge Entry\" Option"),
+                  ),
+                );
+              },
             ),
             SpeedDialChild(
-                child: Icon(Icons.book),
-                label: "Manual Ledger Entry",
-                onTap: () => {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        enableDrag: true,
-                        builder: (context) =>
-                            SingleChildScrollView(child: TransactionEntry()),
-                      )
-                    }),
+              child: Icon(Icons.book),
+              label: "Manual Ledger Entry",
+              onTap: () => {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  enableDrag: true,
+                  builder: (context) =>
+                      SingleChildScrollView(child: TransactionEntry()),
+                )
+              },
+            ),
           ],
         ),
       ),
@@ -59,108 +96,85 @@ class TransactionPageState extends State<TransactionPage> {
   }
 }
 
-class TransactionEntry extends StatefulWidget {
-  TransactionEntry({Key? key}) : super(key: key);
+class TransactionList extends StatefulWidget {
+  TransactionList(this.transactions);
 
-  @override
-  _TransactionEntryState createState() => _TransactionEntryState();
+  List<Trans.Transaction> transactions;
+
+  _TransactionListState createState() => _TransactionListState();
 }
 
-class _TransactionEntryState extends State<TransactionEntry> {
-  Trans.TransactionBuilder _transaction = Trans.TransactionBuilder();
-  final _formKey = GlobalKey<FormState>();
-  final _dateController = TextEditingController();
-  bool _balanced = true;
-
-  void _addTransaction() {
-    TransactionActions.manager.newTransaction(_transaction);
+class _TransactionListState extends State<TransactionList> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Row(
+          children: <String, int>{
+            "Type": 1,
+            "Date": 1,
+            "Account": 2,
+            "Amount": 1,
+          }
+              .entries
+              .map<Widget>(
+                (e) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(e.key),
+                  ),
+                  flex: e.value,
+                ),
+              )
+              .toList(),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: widget.transactions.length,
+            itemBuilder: (BuildContext context, int index) {
+              return TransactionListing(
+                transaction: widget.transactions[index],
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
+}
 
-  bool _balanceTransaction() {
-    double totalCredits = 0;
-    double totalDebits = 0;
+class TransactionListing extends StatelessWidget {
+  TransactionListing({required this.transaction});
 
-    for (int i = 0; i < _transaction.debits.length; ++i) {
-      totalDebits += _transaction.debits[i].amount;
-    }
-
-    for (int i = 0; i < _transaction.credits.length; ++i) {
-      totalCredits += _transaction.credits[i].amount;
-    }
-
-    print(totalDebits - totalCredits);
-
-    return (totalCredits - totalDebits) == 0;
-  }
+  final Trans.Transaction transaction;
 
   @override
   Widget build(BuildContext context) {
-    Widget newTransactionForm = Form(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      key: _formKey,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TransactionDateField(
-              _dateController,
-              onSaved: (value) => _transaction.date = value,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: TransactionDetailsField(
-                onSaved: (value) => _transaction.details = value,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: PayeePayerFormField(
-                onSaved: (value) => _transaction.payer = value,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: TransactionSplitField(
-                title: "Credits",
-                color: Colors.red,
-                onSaved: (split) => _transaction.credits.add(split),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: TransactionSplitField(
-                title: "Debits",
-                color: Colors.black,
-                onSaved: (split) => _transaction.debits.add(split),
-              ),
-            ),
-          ],
+    return Material(
+      child: ListTile(
+        minVerticalPadding: 0,
+        minLeadingWidth: 0,
+        title: Row(
+          children: <String, int>{
+            "Check": 1,
+            "1 December 1970": 1,
+            "Checkings Account": 2,
+            "\$18.00": 1,
+          }
+              .entries
+              .map<Widget>(
+                (e) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(e.key, style: TextStyle(fontSize: 14.0)),
+                  ),
+                  flex: e.value,
+                ),
+              )
+              .toList(),
         ),
       ),
     );
-
-    return newTransactionForm;
   }
 }
-
-/*
-if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              if (_balanceTransaction()) {
-                setState(() {
-                  _balanced = true;
-                });
-                _addTransaction();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Added Transaction')),
-                );
-              } else {
-                setState(() {
-                  _balanced = false;
-                  _transaction.credits.clear();
-                  _transaction.debits.clear();
-                });
-              }
-            }
-          }*/

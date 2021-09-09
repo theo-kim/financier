@@ -1,27 +1,34 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/accounts.dart';
 import 'package:flutter/material.dart';
 
-typedef void onSavedFunction(TransactionSplit split);
+typedef void OnSavedFunction(TransactionSplit split);
 
 class TransactionSplitField extends StatefulWidget {
-  TransactionSplitField(
-      {required this.title, required this.color, required this.onSaved});
+  TransactionSplitField({
+    required this.title,
+    required this.color,
+    required this.onSaved,
+  });
 
   final String title;
   final Color color;
-  final onSavedFunction onSaved;
+  final OnSavedFunction onSaved;
 
   @override
   State<StatefulWidget> createState() => _TransactionSplitFieldState();
 }
 
 class _TransactionSplitFieldState extends State<TransactionSplitField> {
-  final _entries = <Widget>[];
+  final _entries = <SplitEntry>[];
+
+  void _removeEntry(SplitEntry t) {
+    setState(() {
+      _entries.remove(t);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +57,7 @@ class _TransactionSplitFieldState extends State<TransactionSplitField> {
                           _entries.add(SplitEntry(
                             index: _entries.length - 1,
                             onSave: widget.onSaved,
+                            onRemove: _removeEntry,
                           ));
                         });
                       },
@@ -57,7 +65,7 @@ class _TransactionSplitFieldState extends State<TransactionSplitField> {
                         Icons.add,
                         size: 16.0,
                       ),
-                      label: Text("Add Credit"),
+                      label: Text("Add " + widget.title),
                     )
                   ],
                 )
@@ -70,11 +78,16 @@ class _TransactionSplitFieldState extends State<TransactionSplitField> {
 }
 
 class SplitEntry extends StatefulWidget {
-  SplitEntry({Key? key, required this.index, required this.onSave})
+  SplitEntry(
+      {Key? key,
+      required this.index,
+      required this.onSave,
+      required this.onRemove})
       : super(key: key);
 
   final int index;
-  final onSavedFunction onSave;
+  final OnSavedFunction onSave;
+  final Function(SplitEntry) onRemove;
 
   @override
   _SplitEntryState createState() => _SplitEntryState();
@@ -134,7 +147,7 @@ class _SplitEntryState extends State<SplitEntry> {
             Flexible(
               flex: 1,
               child: IconButton(
-                onPressed: () {},
+                onPressed: () => widget.onRemove(widget),
                 icon: Icon(
                   Icons.remove_circle,
                   size: 16.0,

@@ -10,8 +10,17 @@ class TransactionActions {
   List<My.Transaction>? _cache;
 
   Future<List<My.Transaction>> getAllTransactions() async {
-    // TODO
-    throw UnimplementedError();
+    if (_cache != null) return _cache!;
+
+    final firestore = transactionCollection;
+
+    List<My.Transaction> transactions = [];
+    var snapshot = await await firestore.get();
+    for (int i = 0; i < snapshot.docs.length; ++i) {
+      transactions.add(snapshot.docs[i].data());
+    }
+    _cache = transactions;
+    return transactions;
   }
 
   Future<My.Transaction> newTransaction(

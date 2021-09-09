@@ -5,6 +5,23 @@ import 'package:financier/src/models/reference.dart';
 
 part 'transaction.g.dart';
 
+class TransactionType extends EnumClass {
+  static const TransactionType credit_card_charge = _$credit_card_charge;
+  static const TransactionType check = _$check;
+  static const TransactionType transfer = _$transfer;
+  static const TransactionType deposit = _$deposit;
+  static const TransactionType payment = _$payment;
+  static const TransactionType none = _$none;
+
+  const TransactionType._(String name) : super(name);
+
+  static BuiltSet<TransactionType> get values => _$values;
+  static TransactionType valueOf(String name) => _$valueOf(name);
+
+  static Serializer<TransactionType> get serializer =>
+      _$transactionTypeSerializer;
+}
+
 abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   DateTime get date;
   String? get details;
@@ -12,6 +29,7 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   BuiltList<TransactionSplit> get credits;
   BuiltList<TransactionSplit> get debits;
   BuiltDocumentReference get id;
+  TransactionType? get type;
 
   Transaction._();
 
