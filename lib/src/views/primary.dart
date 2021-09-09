@@ -2,6 +2,7 @@ import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/dynamic-scaffold.dart';
 import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/views/pages/account.dart';
+import 'package:financier/src/views/pages/settings.dart';
 import 'package:financier/src/views/pages/transactions.dart';
 import 'package:financier/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
@@ -18,16 +19,7 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
   FloatingActionButton? _floatingActionButton;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  void FABSet(FloatingActionButton fab) {
-    print("fab");
-    setState(() {
-      _floatingActionButton = fab;
-    });
-  }
-
   Route<dynamic> _router(RouteSettings settings) {
-    // final isMobile = MediaQuery.of(context).size.shortestSide < 700;
-
     final _builder = (BuildContext context) {
       if (settings.name == "/") {
         return SummaryPage();
@@ -35,6 +27,8 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
         return AccountsPage();
       } else if (settings.name == "/transactions") {
         return TransactionPage();
+      } else if (settings.name == "/settings") {
+        return SettingsPage();
       } else {
         return SummaryPage();
       }

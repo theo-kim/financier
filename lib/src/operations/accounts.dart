@@ -4,6 +4,13 @@ import 'package:financier/src/models/reference.dart';
 import 'package:financier/src/models/serializer.dart';
 import 'package:financier/src/operations/collections.dart';
 
+Account unknownAccount = Account((b) => b
+  ..parent = null
+  ..type = AccountType.none
+  ..name = "Unknown Account"
+  ..startingBalance = 0
+  ..id = BuiltDocumentReferenceBuilder());
+
 extension ListExtension on List<Account> {
   void replace(Account oldAccount, Account newAccount) {
     int index = this.indexOf(oldAccount);
@@ -79,15 +86,17 @@ class AccountActions {
   }
 
   Account getCachedAccount(Account a) {
-    return _cache!.firstWhere((element) => element == a,
-        orElse: () =>
-            throw Exception("account ${a.name} does not exist in cache"));
+    if (_cache == null) throw Exception("Cache uninitialized");
+    return _cache!
+        .firstWhere((element) => element == a, orElse: () => unknownAccount);
   }
 
   Account getCachedAccountByReference(DocumentReference ref) {
-    return _cache!.firstWhere((element) => element.id.reference!.id == ref.id,
-        orElse: () =>
-            throw Exception("account does not exist with that reference"));
+    if (_cache == null) throw Exception("Cache uninitialized");
+    Account found = _cache!.firstWhere(
+        (element) => element.id.reference!.id == ref.id,
+        orElse: () => unknownAccount);
+    return found;
   }
 
   Future<Account> addChildAccount(Account parent, Account child) async {

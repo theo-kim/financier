@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/operations/accounts.dart';
-import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
 
 extension StringExtension on String {

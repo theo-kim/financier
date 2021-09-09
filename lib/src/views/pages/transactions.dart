@@ -1,13 +1,8 @@
-import 'package:financier/src/components/appbar.dart';
-import 'package:financier/src/components/dynamic-scaffold.dart';
-import 'package:financier/src/components/fields/payee-payer.dart';
-import 'package:financier/src/components/fields/transaction-date.dart';
-import 'package:financier/src/components/fields/transaction-details.dart';
-import 'package:financier/src/components/fields/transaction-split.dart';
-import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/components/transaction-entry-form.dart';
+import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/date.dart';
+import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
-import 'package:financier/src/views/pages/adaptive_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -120,7 +115,8 @@ class _TransactionListState extends State<TransactionList> {
               .entries
               .map<Widget>(
                 (e) => Expanded(
-                  child: Padding(
+                  child: Container(
+                    color: Color(0xfff0f0f0),
                     padding: EdgeInsets.all(10.0),
                     child: Text(e.key),
                   ),
@@ -151,25 +147,42 @@ class TransactionListing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? formatterName = preferences.getString("date_formatter");
+    DateFormatter formatter = DateFormatter.getAvailable(formatterName);
+
     return Material(
       child: ListTile(
-        minVerticalPadding: 0,
-        minLeadingWidth: 0,
-        title: Row(
-          children: <String, int>{
-            "Check": 1,
-            "1 December 1970": 1,
-            "Checkings Account": 2,
-            "\$18.00": 1,
-          }
-              .entries
+        onTap: () {},
+        contentPadding: EdgeInsets.zero,
+        title: Column(
+          children: (transaction.credits + transaction.debits)
               .map<Widget>(
-                (e) => Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(e.key, style: TextStyle(fontSize: 14.0)),
-                  ),
-                  flex: e.value,
+                (e) => Row(
+                  children: <String, int>{
+                    (transaction.type != null
+                        ? transaction.type.toString()
+                        : "Transfer"): 1,
+                    formatter.formatDate(transaction.date): 1,
+                    AccountActions.manager
+                        .getCachedAccountByReference(e.account.reference!)
+                        .name: 2,
+                    (transaction.credits.indexOf(e) >= 0
+                        ? (-1 * e.amount)
+                            .toString() // TODO: How many decimal places to show for doubles?
+                        : e.amount.toString()): 1,
+                  }
+                      .entries
+                      .map<Widget>(
+                        (e) => Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child:
+                                Text(e.key, style: TextStyle(fontSize: 14.0)),
+                          ),
+                          flex: e.value,
+                        ),
+                      )
+                      .toList(),
                 ),
               )
               .toList(),

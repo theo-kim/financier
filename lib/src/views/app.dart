@@ -1,9 +1,11 @@
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:financier/src/views/primary.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'pages/summary.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -13,8 +15,12 @@ class MyApp extends StatefulWidget {
 class _AppState extends State<MyApp> {
   Future<void> _setUpApp() async {
     await Firebase.initializeApp();
+    // TODO Remove Anonymous sign in
+    await FirebaseAuth.instance.signInAnonymously();
     AccountActions.manager = AccountActions();
     TransactionActions.manager = TransactionActions();
+    preferences = await SharedPreferences.getInstance();
+    await AccountActions.manager.getAllAccounts();
   }
 
   @override
