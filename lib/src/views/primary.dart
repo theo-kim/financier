@@ -6,6 +6,9 @@ import 'package:financier/src/views/pages/settings.dart';
 import 'package:financier/src/views/pages/transactions.dart';
 import 'package:financier/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class BackNavigateIntent extends Intent {}
 
 class PrimaryStructure extends StatefulWidget {
   PrimaryStructure();
@@ -18,6 +21,38 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
   String _title = "Summary";
   FloatingActionButton? _floatingActionButton;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  void _changePageTitle(String route) {
+    setState(() => _title = route);
+  }
+
+  final _backNavigateShortcut = LogicalKeySet(
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.backspace,
+  );
+
+  final _transactionNavigateShortcut = LogicalKeySet(
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.keyT,
+  );
+
+  final _accountNavigateShortcut = LogicalKeySet(
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.keyA,
+  );
+
+  void _backNavigate() {
+    if (Navigator.of(_navigatorKey.currentContext!).canPop() == true) {
+      Navigator.of(_navigatorKey.currentContext!).pop();
+    }
+  }
+
+  void _navigateTo(String route, String name) {
+    if (_navigatorKey.currentContext != null) {
+      _changePageTitle(name);
+      Navigator.of(_navigatorKey.currentContext!).pushReplacementNamed(route);
+    }
+  }
 
   Route<dynamic> _router(RouteSettings settings) {
     final _builder = (BuildContext context) {
@@ -48,20 +83,38 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
       key: _navigatorKey,
     );
 
-    return DynamicScaffold(
-      appBar: StandardAppBar(
-        title: _title,
+    return FocusableActionDetector(
+      autofocus: true,
+      shortcuts: {
+        _backNavigateShortcut: BackNavigateIntent(),
+        _transactionNavigateShortcut: TransactionPageIntent(),
+        _accountNavigateShortcut: AccountPageIntent(),
+      },
+      actions: {
+        TransactionPageIntent: CallbackAction(
+          onInvoke: (e) => _navigateTo("/transactions", "Transactions"),
+        ),
+        AccountPageIntent: CallbackAction(
+          onInvoke: (e) => _navigateTo("/accounts", "Accounts"),
+        ),
+        BackNavigateIntent: CallbackAction(
+          onInvoke: (e) => _backNavigate(),
+        ),
+      },
+      child: DynamicScaffold(
+        key: UniqueKey(),
+        appBar: StandardAppBar(
+          title: _title,
+        ),
+        drawerBuilder: (bool isHidden) => NavigationDrawer(
+          elevated: isHidden,
+          activePage: _title,
+          onPageChange: _changePageTitle,
+          navigator: _navigatorKey,
+        ),
+        body: mainNavigator,
+        floatingActionButton: _floatingActionButton,
       ),
-      drawerBuilder: (bool isHidden) => NavigationDrawer(
-        elevated: isHidden,
-        activePage: _title,
-        onPageChange: (String route) {
-          setState(() => _title = route);
-        },
-        navigator: _navigatorKey,
-      ),
-      body: mainNavigator,
-      floatingActionButton: _floatingActionButton,
     );
   }
 }

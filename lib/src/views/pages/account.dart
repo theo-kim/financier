@@ -4,12 +4,17 @@ import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/operations/accounts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+
+class AccountPageIntent extends Intent {}
+
+class _NewAccountIntent extends Intent {}
 
 class AccountsPage extends StatefulWidget {
   AccountsPage() : super();
@@ -22,6 +27,19 @@ class _AccountsPageState extends State<AccountsPage> {
   AccountType? _filteredType;
   final GlobalKey<_AccountListState> _accountList =
       GlobalKey<_AccountListState>();
+
+  final LogicalKeySet _newAccountShortcut =
+      LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyN);
+
+  void _showNewAccountForm() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) =>
+          NewAccountForm(onSubmit: (n, p) => _saveAccount(n, p, context)),
+      isScrollControlled: true,
+      enableDrag: true,
+    );
+  }
 
   void _saveAccount(Account newAccount, Account? parent, BuildContext context) {
     AccountActions.manager.newAccount(newAccount.toBuilder()).then((child) {
@@ -47,7 +65,18 @@ class _AccountsPageState extends State<AccountsPage> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(vertical: 10.0),
-          child: AccountList(_filteredType, key: _accountList),
+          child: FocusableActionDetector(
+            child: AccountList(_filteredType, key: _accountList),
+            shortcuts: {
+              _newAccountShortcut: _NewAccountIntent(),
+            },
+            autofocus: true,
+            actions: {
+              _NewAccountIntent: CallbackAction(
+                onInvoke: (e) => _showNewAccountForm(),
+              ),
+            },
+          ),
         ),
         Positioned(
           bottom: 20.0,
@@ -55,15 +84,7 @@ class _AccountsPageState extends State<AccountsPage> {
           child: FloatingActionButton(
             tooltip: 'New Account',
             child: Icon(Icons.add),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => NewAccountForm(
-                    onSubmit: (n, p) => _saveAccount(n, p, context)),
-                isScrollControlled: true,
-                enableDrag: true,
-              );
-            },
+            onPressed: _showNewAccountForm,
           ),
         )
       ],
@@ -397,7 +418,7 @@ class NewAccountForm extends StatelessWidget {
                         right: 20.0,
                       ),
                       child: Text(
-                        "Submit",
+                        "Create Account",
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),

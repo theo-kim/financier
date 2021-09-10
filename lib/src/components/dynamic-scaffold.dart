@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 
 class DynamicScaffold extends StatefulWidget {
   DynamicScaffold(
-      {required this.appBar,
+      {required key,
+      required this.appBar,
       required this.body,
       required this.drawerBuilder,
-      this.floatingActionButton});
+      this.floatingActionButton})
+      : super(key: key);
 
   final PreferredSizeWidget appBar;
   final Widget body;

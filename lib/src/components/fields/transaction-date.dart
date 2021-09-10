@@ -1,3 +1,5 @@
+import 'package:financier/src/operations/date.dart';
+import 'package:financier/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 
 typedef void onSavedFunctionDateTime(DateTime value);
@@ -34,21 +36,23 @@ class TransactionDateField extends StatelessWidget {
       ),
       onSaved: (value) {
         if (value != null) {
-          List<String> split = value.split("-");
-          this.onSaved(DateTime(
-                  int.parse(split[2]), int.parse(split[0]), int.parse(split[1]))
+          this.onSaved(DateFormatter.getAvailable(
+                  preferences.getString("date_formatter"))
+              .unformatDate(value)
               .toUtc());
         }
       },
       onTap: () async {
-        var date = await showDatePicker(
+        final DateTime? date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
           firstDate: DateTime(1900),
           lastDate: DateTime(2100),
         );
         if (date != null) {
-          dateController.text = "${date.month}-${date.day}-${date.year}";
+          dateController.text = DateFormatter.getAvailable(
+                  preferences.getString("date_formatter"))
+              .formatDate(date);
         }
       },
     );

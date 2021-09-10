@@ -8,7 +8,9 @@ import 'fields/transaction-split.dart';
 import '../models/transaction.dart' as Trans;
 
 class TransactionEntry extends StatefulWidget {
-  TransactionEntry({Key? key}) : super(key: key);
+  TransactionEntry({Key? key, required this.onSubmit}) : super(key: key);
+
+  final Function() onSubmit;
 
   @override
   _TransactionEntryState createState() => _TransactionEntryState();
@@ -77,6 +79,7 @@ class _TransactionEntryState extends State<TransactionEntry> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Added Transaction')),
                     );
+                    widget.onSubmit();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

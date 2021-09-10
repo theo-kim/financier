@@ -4,11 +4,16 @@ import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../models/transaction.dart' as Trans;
 
 // TODO: https://github.com/material-components/material-components-flutter-adaptive/blob/develop/adaptive_navigation/example/lib/default_scaffold.dart
+
+class _NewLedgerEntryIntent extends Intent {}
+
+class TransactionPageIntent extends Intent {}
 
 class TransactionPage extends StatefulWidget {
   TransactionPage();
@@ -17,6 +22,29 @@ class TransactionPage extends StatefulWidget {
 }
 
 class TransactionPageState extends State<TransactionPage> {
+  final newLedgerEntryKeySet =
+      LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyL);
+
+  void _reload() {
+    setState(() {});
+  }
+
+  void _showLedgerEntryForm() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: true,
+      builder: (context) => SingleChildScrollView(
+        child: TransactionEntry(
+          onSubmit: () {
+            Navigator.of(context).pop();
+            _reload();
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
@@ -36,7 +64,18 @@ class TransactionPageState extends State<TransactionPage> {
               ),
             );
           } else {
-            return TransactionList(snapshot.data!);
+            return FocusableActionDetector(
+              autofocus: true,
+              shortcuts: {
+                newLedgerEntryKeySet: _NewLedgerEntryIntent(),
+              },
+              actions: {
+                _NewLedgerEntryIntent: CallbackAction(
+                  onInvoke: (e) => _showLedgerEntryForm.call(),
+                ),
+              },
+              child: TransactionList(snapshot.data!),
+            );
           }
         },
       ),
@@ -74,15 +113,7 @@ class TransactionPageState extends State<TransactionPage> {
             SpeedDialChild(
               child: Icon(Icons.book),
               label: "Manual Ledger Entry",
-              onTap: () => {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  enableDrag: true,
-                  builder: (context) =>
-                      SingleChildScrollView(child: TransactionEntry()),
-                )
-              },
+              onTap: _showLedgerEntryForm,
             ),
           ],
         ),
