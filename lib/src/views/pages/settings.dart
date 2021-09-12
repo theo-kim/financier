@@ -60,23 +60,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text("Backup Data"),
               ]),
             ),
-            Container(
-              padding: EdgeInsets.all(5.0),
-              margin: EdgeInsets.only(left: 10.0),
-              child: Text(
-                "Last backup made on XXXXXX",
-                style: TextStyle(color: Colors.green),
-              ),
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  side: BorderSide(
-                    color: Colors.green,
-                    width: 1.0,
+            Flexible(
+              child: Container(
+                padding: EdgeInsets.all(5.0),
+                margin: EdgeInsets.only(left: 10.0),
+                child: Text(
+                  "Last backup made on XXXXXX",
+                  style: TextStyle(color: Colors.green),
+                ),
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: BorderSide(
+                      color: Colors.green,
+                      width: 1.0,
+                    ),
                   ),
                 ),
               ),
-            )
+            ),
           ]),
           Row(children: [
             ElevatedButton(
