@@ -125,7 +125,7 @@ class TransactionPageState extends State<TransactionPage> {
 class TransactionList extends StatefulWidget {
   TransactionList(this.transactions);
 
-  List<Trans.Transaction> transactions;
+  final List<Trans.Transaction> transactions;
 
   _TransactionListState createState() => _TransactionListState();
 }

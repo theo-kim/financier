@@ -1,24 +1,38 @@
+import 'package:date_format/date_format.dart';
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/dynamic-scaffold.dart';
 import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/views/pages/account.dart';
+import 'package:financier/src/views/pages/login.dart';
 import 'package:financier/src/views/pages/settings.dart';
 import 'package:financier/src/views/pages/transactions.dart';
 import 'package:financier/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+final Map<String, String> routeToTitle = {
+  "/": "Summary",
+  "/transactions": "Transactions",
+  "/settings": "Settings",
+  "/accounts": "Accounts"
+};
+
 class BackNavigateIntent extends Intent {}
 
 class PrimaryStructure extends StatefulWidget {
-  PrimaryStructure();
+  PrimaryStructure(this.initialRoute) {
+    if (!routeToTitle.containsKey(initialRoute))
+      throw "Invalid initial route for application";
+  }
+
+  final String initialRoute;
 
   @override
   _PrimaryStructureState createState() => _PrimaryStructureState();
 }
 
 class _PrimaryStructureState extends State<PrimaryStructure> {
-  String _title = "Summary";
+  late String _title;
   FloatingActionButton? _floatingActionButton;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -76,9 +90,15 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
   }
 
   @override
+  void initState() {
+    _title = routeToTitle[widget.initialRoute]!;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final mainNavigator = Navigator(
-      initialRoute: "/",
+      initialRoute: widget.initialRoute,
       onGenerateRoute: _router,
       key: _navigatorKey,
     );

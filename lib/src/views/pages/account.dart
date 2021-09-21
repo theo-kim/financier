@@ -436,7 +436,7 @@ class AccountPropertyField extends StandardFormField {
       {required this.name,
       required this.errorMessage,
       this.validator,
-      required onSavedFunction onSaved,
+      required OnSavedFunction onSaved,
       bool required = true})
       : super(required, onSaved);
 

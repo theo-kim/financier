@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class TransactionDetailsField extends StandardFormField {
   TransactionDetailsField(
-      {bool required = true, required onSavedFunction onSaved})
+      {bool required = true, required OnSavedFunction onSaved})
       : super(required, onSaved);
 
   Widget build(BuildContext context) {
