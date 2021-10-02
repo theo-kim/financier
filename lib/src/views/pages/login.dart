@@ -1,7 +1,7 @@
+import 'package:financier/src/components/login-button.dart';
 import 'package:financier/src/views/pages/registration.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
@@ -12,19 +12,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    ButtonStyle buttonShape(Color c) => ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(90.0),
-            ),
-            side: BorderSide.none,
-          )),
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-              EdgeInsets.all(10.0)),
-        );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -41,16 +28,28 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {},
-          style: buttonShape(Colors.grey),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.mail, color: Colors.black),
-              Text("Login with Email"),
-            ],
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            LoginButton(
+              icon: Icon(Icons.mail, color: Colors.black),
+              label: "Sign in with Email",
+              background: Colors.white,
+              textStyle: TextStyle(fontSize: 16.0),
+            ),
+            LoginButton(
+              icon: FaIcon(
+                FontAwesomeIcons.google,
+                color: Colors.white,
+              ),
+              label: "Sign in with Google",
+              background: Colors.blue,
+              textStyle: TextStyle(
+                fontSize: 16.0,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
         TextButton(
           onPressed: () {
