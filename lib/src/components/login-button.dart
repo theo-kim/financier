@@ -6,12 +6,14 @@ class LoginButton extends StatelessWidget {
     required this.icon,
     required this.background,
     this.textStyle,
+    required this.onPressed,
   });
 
   final String label;
   final Widget icon;
   final Color background;
   final TextStyle? textStyle;
+  final Function() onPressed;
 
   ButtonStyle _buttonShape(Color c) {
     return ButtonStyle(
@@ -19,7 +21,7 @@ class LoginButton extends StatelessWidget {
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
-          Radius.circular(90.0),
+          Radius.circular(10.0),
         ),
         side: BorderSide.none,
       )),
@@ -29,7 +31,7 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: _buttonShape(Colors.grey),
       child: Padding(
         padding: EdgeInsets.all(8.0),
