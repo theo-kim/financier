@@ -1,9 +1,7 @@
-import 'package:date_format/date_format.dart';
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/dynamic-scaffold.dart';
 import 'package:financier/src/components/navigation.dart';
 import 'package:financier/src/views/pages/account.dart';
-import 'package:financier/src/views/pages/login.dart';
 import 'package:financier/src/views/pages/settings.dart';
 import 'package:financier/src/views/pages/transactions.dart';
 import 'package:financier/src/views/pages/summary.dart';

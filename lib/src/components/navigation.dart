@@ -1,4 +1,11 @@
+import 'dart:html';
+import 'dart:ui' as ui;
+
+import 'package:financier/src/views/pages/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class NavigationDrawer extends StatefulWidget {
   NavigationDrawer(
@@ -67,6 +74,15 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       "Transactions": "/transactions",
     };
 
+    ui.platformViewRegistry.registerViewFactory(
+        'profile-img',
+        (int viewId) => ImageElement()
+          ..src = FirebaseAuth.instance.currentUser!.photoURL!
+          ..referrerPolicy = "no-referrer");
+
+    String displayName = FirebaseAuth.instance.currentUser!.displayName ??
+        FirebaseAuth.instance.currentUser!.email!;
+
     return Drawer(
       elevation: (widget.elevated ? 16.0 : 0.0),
       child: Container(
@@ -86,10 +102,68 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               padding: EdgeInsets.all(1.0),
               children: <Widget>[
                     DrawerHeader(
-                      child: Text(
-                        "Financier",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18.0),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.0,
+                          vertical: 10.0,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  kIsWeb
+                                      ? Padding(
+                                          padding: EdgeInsets.only(right: 10),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: HtmlElementView(
+                                              viewType: "profile-img",
+                                            ),
+                                            width: 40.0,
+                                            height: 40.0,
+                                          ))
+                                      : Image.network(FirebaseAuth
+                                          .instance.currentUser!.photoURL!),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    // crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(displayName),
+                                      TextButton(
+                                        onPressed: () {
+                                          FirebaseAuth.instance
+                                              .signOut()
+                                              .then((value) {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPage(),
+                                              ),
+                                            );
+                                          });
+                                        },
+                                        child: Text(
+                                          "Logout",
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ]),
+                            Text(
+                              "Pincher",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          ],
+                        ),
                       ),
                       margin: EdgeInsets.zero,
                       decoration: ShapeDecoration(

@@ -41,7 +41,7 @@ class _AppState extends State<MyApp> {
             theme: ThemeData(
               primarySwatch: Colors.yellow,
             ),
-            home: snapshot.data! ? PrimaryStructure("/summary") : LoginPage(),
+            home: snapshot.data! ? PrimaryStructure("/") : LoginPage(),
           );
         }
         return MaterialApp(
