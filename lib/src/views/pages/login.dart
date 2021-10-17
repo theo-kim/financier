@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'package:financier/src/components/login-button.dart';
+import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/transactions.dart';
+import 'package:financier/src/operations/users.dart';
 import 'package:financier/src/views/pages/registration.dart';
 import 'package:financier/src/views/primary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,33 +16,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final _textFieldValueHolder = TextEditingController();
-
-  Future<User?> _signIn(UserCredential credential) async {
-    return credential.user;
-  }
-
-  Future<User?> _signInWithGoogle() async {
-    GoogleSignInAccount googleSignInAccount;
-    var account = await _googleSignIn.signIn();
-    if (account != null) {
-      googleSignInAccount = account;
-    } else {
-      throw "Login cancelled";
-    }
-
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    return _signIn(await _auth.signInWithCredential(credential));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,13 +90,17 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 LoginButton(
                   onPressed: () {
-                    _signInWithGoogle().then((u) {
+                    UserActions.manager.signInWithGoogle().then((u) {
                       if (u == null) throw "Null user";
+                      AccountActions.manager = AccountActions();
+                      TransactionActions.manager = TransactionActions();
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => PrimaryStructure("/"),
                         ),
                       );
+
+                      // return AccountActions.manager.getAllAccounts();
                     }).catchError((err) {
                       print("Login cancelled");
                     });

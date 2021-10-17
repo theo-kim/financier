@@ -4,11 +4,15 @@ import 'package:built_value/standard_json_plugin.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/reference.dart';
 import 'package:financier/src/models/transaction.dart';
+import 'package:financier/src/models/user.dart';
 
 part 'serializer.g.dart';
 
 @SerializersFor(const [BuiltDocumentReference])
 final Serializers referenceSerializers = _$referenceSerializers;
+
+@SerializersFor(const [BuiltUser])
+final Serializers userSerializers = _$userSerializers;
 
 @SerializersFor(const [Account, AccountType, Transaction, TransactionSplit])
 final Serializers serializers =

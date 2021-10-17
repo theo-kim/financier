@@ -41,22 +41,26 @@ class _AccountsPageState extends State<AccountsPage> {
     );
   }
 
-  void _saveAccount(Account newAccount, Account? parent, BuildContext context) {
-    AccountActions.manager.newAccount(newAccount.toBuilder()).then((child) {
+  void _saveAccount(
+      AccountBuilder newAccount, Account? parent, BuildContext ctx) async {
+    try {
+      Account child = await AccountActions.manager.newAccount(newAccount);
       if (parent != null) {
-        AccountActions.manager.addChildAccount(parent, child).then((_) {
-          Navigator.of(context).pop();
-          _accountList.currentState!.reload();
-        });
+        await AccountActions.manager.addChildAccount(parent, child);
       } else {
-        AccountActions.manager.getRootAccount().then((Account root) {
-          AccountActions.manager.addChildAccount(root, child).then((_) {
-            Navigator.of(context).pop();
-            _accountList.currentState!.reload();
-          });
-        });
+        Account root = await AccountActions.manager.getRootAccount();
+        await AccountActions.manager.addChildAccount(root, child);
       }
-    });
+      Navigator.of(ctx).pop();
+      _accountList.currentState!.reload();
+    } catch (e) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text("Error while creating account: " + e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -116,6 +120,14 @@ class _AccountListState extends State<AccountList> {
     );
   }
 
+  Widget _errorContainer(String errorText) {
+    return Container(
+      child: Center(
+        child: Text(errorText),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Account>>(
@@ -123,22 +135,21 @@ class _AccountListState extends State<AccountList> {
           ? AccountActions.manager.getAllAccounts()
           : AccountActions.manager.getAccountsByType(widget.type!),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container(
-            child: Center(
-              child: Text("Could not load accounts"),
-            ),
+        if (snapshot.hasError) {
+          return _errorContainer(
+              "Error loading accounts: " + snapshot.error.toString());
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
           );
-        } else if (snapshot.data!.length == 0) {
-          return Container(
-            child: Center(
-              child: Text("Could not find any accounts, try creating one"),
-            ),
-          );
+        } else if (snapshot.data!.length <= 1) {
+          return _errorContainer(
+              "Could not find any accounts, try creating one");
         }
         List<Account> accounts = <Account>[
           for (var account in snapshot.data!)
-            if (account.type != AccountType.none) account
+            if (account.type != AccountType.none || account.parent != null)
+              account
         ];
         return ListView.builder(
           itemCount: accounts.length,
@@ -319,11 +330,11 @@ class AccountDetails extends StatelessWidget {
 class NewAccountForm extends StatelessWidget {
   NewAccountForm({required this.onSubmit});
 
-  final void Function(Account newAccount, Account? parent) onSubmit;
+  final void Function(AccountBuilder newAccount, Account? parent) onSubmit;
 
   final _formKey = GlobalKey<FormState>();
   final _account = AccountBuilder();
-  late final Account? _parentAccount;
+  late Account? _parentAccount;
 
   void _saveParentAccount(Account? a) {
     _parentAccount = a;
@@ -342,7 +353,7 @@ class NewAccountForm extends StatelessWidget {
           ),
         );
       }
-      onSubmit(_account.build(), _parentAccount);
+      onSubmit(_account, _parentAccount);
     }
   }
 

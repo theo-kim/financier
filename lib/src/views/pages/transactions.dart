@@ -45,24 +45,26 @@ class TransactionPageState extends State<TransactionPage> {
     );
   }
 
+  Widget _errorContainer(String errorText) {
+    return Container(
+      child: Center(
+        child: Text(errorText),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
       FutureBuilder(
         future: TransactionActions.manager.getAllTransactions(),
         builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
-          if (!snapshot.hasData) {
-            return Container(
-              child: Center(
-                child: Text("Could not load accounts"),
-              ),
-            );
-          } else if (snapshot.data!.length == 0) {
-            return Container(
-              child: Center(
-                child: Text("Could not find any accounts, try creating one"),
-              ),
-            );
+          if (snapshot.hasError) {
+            return _errorContainer(
+                "Error loading transactions: " + snapshot.error.toString());
+          } else if (!snapshot.hasData || snapshot.data!.length == 0) {
+            return _errorContainer(
+                "Could not find any transactions, try creating one");
           } else {
             return FocusableActionDetector(
               autofocus: true,

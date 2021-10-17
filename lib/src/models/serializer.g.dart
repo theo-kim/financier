@@ -9,10 +9,13 @@ part of 'serializer.dart';
 Serializers _$referenceSerializers = (new Serializers().toBuilder()
       ..add(BuiltDocumentReference.serializer))
     .build();
+Serializers _$userSerializers =
+    (new Serializers().toBuilder()..add(BuiltUser.serializer)).build();
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Account.serializer)
       ..add(AccountType.serializer)
       ..add(BuiltDocumentReference.serializer)
+      ..add(BuiltUser.serializer)
       ..add(Transaction.serializer)
       ..add(TransactionSplit.serializer)
       ..add(TransactionType.serializer)

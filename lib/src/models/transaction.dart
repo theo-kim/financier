@@ -2,6 +2,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:financier/src/models/reference.dart';
+import 'package:financier/src/models/user.dart';
 
 part 'transaction.g.dart';
 
@@ -30,6 +31,7 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   BuiltList<TransactionSplit> get debits;
   BuiltDocumentReference get id;
   TransactionType? get type;
+  BuiltUser get owner;
 
   Transaction._();
 

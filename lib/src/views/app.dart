@@ -1,6 +1,7 @@
 import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
+import 'package:financier/src/operations/users.dart';
 import 'package:financier/src/views/pages/login.dart';
 import 'package:financier/src/views/primary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +18,8 @@ class _AppState extends State<MyApp> {
   Future<bool> _setUpApp() async {
     await Firebase.initializeApp();
     preferences = await SharedPreferences.getInstance();
-    if (FirebaseAuth.instance.currentUser == null) {
+    UserActions.manager = UserActions();
+    if (!UserActions.manager.isLoggedIn()) {
       // not signed in
       return false;
     }

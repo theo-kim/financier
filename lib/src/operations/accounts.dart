@@ -3,12 +3,16 @@ import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/reference.dart';
 import 'package:financier/src/models/serializer.dart';
 import 'package:financier/src/operations/collections.dart';
+import 'package:financier/src/operations/users.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Account unknownAccount = Account((b) => b
   ..parent = null
   ..type = AccountType.none
   ..name = "Unknown Account"
   ..startingBalance = 0
+  ..owner = UserActions.manager.currentUser.toBuilder()
   ..id = BuiltDocumentReferenceBuilder());
 
 extension ListExtension on List<Account> {
@@ -25,12 +29,14 @@ class AccountActions {
   List<Account>? _cache;
 
   Future<List<Account>> getAllAccounts() async {
+    String uid = UserActions.manager.currentUser.uid;
     if (_cache != null) return _cache!;
 
     final firestore = accountCollection;
 
     List<Account> accounts = [];
-    var snapshot = await await firestore.get();
+
+    var snapshot = await await firestore.where("owner", isEqualTo: uid).get();
     for (int i = 0; i < snapshot.docs.length; ++i) {
       accounts.add(snapshot.docs[i].data());
     }
@@ -68,10 +74,24 @@ class AccountActions {
     return result;
   }
 
+  DocumentReference initAccount() {
+    return FirebaseFirestore.instance.collection("accounts").doc();
+  }
+
   Future<Account> newAccount(AccountBuilder account) async {
-    DocumentReference ref =
-        FirebaseFirestore.instance.collection("accounts").doc();
-    account.id = BuiltDocumentReference((b) => b..reference = ref).toBuilder();
+    DocumentReference ref;
+    account.owner = UserActions.manager.currentUser.toBuilder();
+    if (account.id.reference == null) {
+      ref = initAccount();
+      account.id =
+          BuiltDocumentReference((b) => b..reference = ref).toBuilder();
+    } else {
+      ref = account.id.reference!;
+    }
+
+    if (account.type == AccountType.none) {
+      account.parent = null;
+    }
     Account a = account.build();
     await ref
         .withConverter(
@@ -83,6 +103,15 @@ class AccountActions {
         .set(a);
     _cache!.add(a);
     return a;
+  }
+
+  Future<List<Account>> newAccountList(List<AccountBuilder> account) async {
+    List<Account> output = [];
+    for (AccountBuilder a in account) {
+      output.add(await newAccount(a));
+    }
+
+    return output;
   }
 
   Account getCachedAccount(Account a) {

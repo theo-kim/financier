@@ -83,6 +83,9 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
       'id',
       serializers.serialize(object.id,
           specifiedType: const FullType(BuiltDocumentReference)),
+      'owner',
+      serializers.serialize(object.owner,
+          specifiedType: const FullType(BuiltUser)),
     ];
     Object? value;
     value = object.memo;
@@ -145,6 +148,10 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
                   specifiedType: const FullType(BuiltDocumentReference))!
               as BuiltDocumentReference);
           break;
+        case 'owner':
+          result.owner.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltUser))! as BuiltUser);
+          break;
       }
     }
 
@@ -167,6 +174,8 @@ class _$Account extends Account {
   final BuiltDocumentReference id;
   @override
   final BuiltDocumentReference? parent;
+  @override
+  final BuiltUser owner;
 
   factory _$Account([void Function(AccountBuilder)? updates]) =>
       (new AccountBuilder()..update(updates)).build();
@@ -178,7 +187,8 @@ class _$Account extends Account {
       required this.type,
       required this.children,
       required this.id,
-      this.parent})
+      this.parent,
+      required this.owner})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         startingBalance, 'Account', 'startingBalance');
@@ -186,6 +196,7 @@ class _$Account extends Account {
     BuiltValueNullFieldError.checkNotNull(type, 'Account', 'type');
     BuiltValueNullFieldError.checkNotNull(children, 'Account', 'children');
     BuiltValueNullFieldError.checkNotNull(id, 'Account', 'id');
+    BuiltValueNullFieldError.checkNotNull(owner, 'Account', 'owner');
   }
 
   @override
@@ -205,7 +216,8 @@ class _$Account extends Account {
         type == other.type &&
         children == other.children &&
         id == other.id &&
-        parent == other.parent;
+        parent == other.parent &&
+        owner == other.owner;
   }
 
   @override
@@ -214,12 +226,16 @@ class _$Account extends Account {
         $jc(
             $jc(
                 $jc(
-                    $jc($jc($jc(0, startingBalance.hashCode), name.hashCode),
-                        memo.hashCode),
-                    type.hashCode),
-                children.hashCode),
-            id.hashCode),
-        parent.hashCode));
+                    $jc(
+                        $jc(
+                            $jc($jc(0, startingBalance.hashCode),
+                                name.hashCode),
+                            memo.hashCode),
+                        type.hashCode),
+                    children.hashCode),
+                id.hashCode),
+            parent.hashCode),
+        owner.hashCode));
   }
 
   @override
@@ -231,7 +247,8 @@ class _$Account extends Account {
           ..add('type', type)
           ..add('children', children)
           ..add('id', id)
-          ..add('parent', parent))
+          ..add('parent', parent)
+          ..add('owner', owner))
         .toString();
   }
 }
@@ -272,6 +289,10 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
       _$this._parent ??= new BuiltDocumentReferenceBuilder();
   set parent(BuiltDocumentReferenceBuilder? parent) => _$this._parent = parent;
 
+  BuiltUserBuilder? _owner;
+  BuiltUserBuilder get owner => _$this._owner ??= new BuiltUserBuilder();
+  set owner(BuiltUserBuilder? owner) => _$this._owner = owner;
+
   AccountBuilder();
 
   AccountBuilder get _$this {
@@ -284,6 +305,7 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
       _children = $v.children.toBuilder();
       _id = $v.id.toBuilder();
       _parent = $v.parent?.toBuilder();
+      _owner = $v.owner.toBuilder();
       _$v = null;
     }
     return this;
@@ -315,7 +337,8 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
                   type, 'Account', 'type'),
               children: children.build(),
               id: id.build(),
-              parent: _parent?.build());
+              parent: _parent?.build(),
+              owner: owner.build());
     } catch (_) {
       late String _$failedField;
       try {
@@ -325,6 +348,8 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
         id.build();
         _$failedField = 'parent';
         _parent?.build();
+        _$failedField = 'owner';
+        owner.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Account', _$failedField, e.toString());

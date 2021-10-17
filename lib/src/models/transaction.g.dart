@@ -94,6 +94,9 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
       'id',
       serializers.serialize(object.id,
           specifiedType: const FullType(BuiltDocumentReference)),
+      'owner',
+      serializers.serialize(object.owner,
+          specifiedType: const FullType(BuiltUser)),
     ];
     Object? value;
     value = object.details;
@@ -157,6 +160,10 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
           result.type = serializers.deserialize(value,
                   specifiedType: const FullType(TransactionType))
               as TransactionType?;
+          break;
+        case 'owner':
+          result.owner.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltUser))! as BuiltUser);
           break;
       }
     }
@@ -230,6 +237,8 @@ class _$Transaction extends Transaction {
   final BuiltDocumentReference id;
   @override
   final TransactionType? type;
+  @override
+  final BuiltUser owner;
 
   factory _$Transaction([void Function(TransactionBuilder)? updates]) =>
       (new TransactionBuilder()..update(updates)).build();
@@ -241,13 +250,15 @@ class _$Transaction extends Transaction {
       required this.credits,
       required this.debits,
       required this.id,
-      this.type})
+      this.type,
+      required this.owner})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(date, 'Transaction', 'date');
     BuiltValueNullFieldError.checkNotNull(payer, 'Transaction', 'payer');
     BuiltValueNullFieldError.checkNotNull(credits, 'Transaction', 'credits');
     BuiltValueNullFieldError.checkNotNull(debits, 'Transaction', 'debits');
     BuiltValueNullFieldError.checkNotNull(id, 'Transaction', 'id');
+    BuiltValueNullFieldError.checkNotNull(owner, 'Transaction', 'owner');
   }
 
   @override
@@ -267,7 +278,8 @@ class _$Transaction extends Transaction {
         credits == other.credits &&
         debits == other.debits &&
         id == other.id &&
-        type == other.type;
+        type == other.type &&
+        owner == other.owner;
   }
 
   @override
@@ -276,12 +288,14 @@ class _$Transaction extends Transaction {
         $jc(
             $jc(
                 $jc(
-                    $jc($jc($jc(0, date.hashCode), details.hashCode),
-                        payer.hashCode),
-                    credits.hashCode),
-                debits.hashCode),
-            id.hashCode),
-        type.hashCode));
+                    $jc(
+                        $jc($jc($jc(0, date.hashCode), details.hashCode),
+                            payer.hashCode),
+                        credits.hashCode),
+                    debits.hashCode),
+                id.hashCode),
+            type.hashCode),
+        owner.hashCode));
   }
 
   @override
@@ -293,7 +307,8 @@ class _$Transaction extends Transaction {
           ..add('credits', credits)
           ..add('debits', debits)
           ..add('id', id)
-          ..add('type', type))
+          ..add('type', type)
+          ..add('owner', owner))
         .toString();
   }
 }
@@ -333,6 +348,10 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
   TransactionType? get type => _$this._type;
   set type(TransactionType? type) => _$this._type = type;
 
+  BuiltUserBuilder? _owner;
+  BuiltUserBuilder get owner => _$this._owner ??= new BuiltUserBuilder();
+  set owner(BuiltUserBuilder? owner) => _$this._owner = owner;
+
   TransactionBuilder();
 
   TransactionBuilder get _$this {
@@ -345,6 +364,7 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
       _debits = $v.debits.toBuilder();
       _id = $v.id.toBuilder();
       _type = $v.type;
+      _owner = $v.owner.toBuilder();
       _$v = null;
     }
     return this;
@@ -375,7 +395,8 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
               credits: credits.build(),
               debits: debits.build(),
               id: id.build(),
-              type: type);
+              type: type,
+              owner: owner.build());
     } catch (_) {
       late String _$failedField;
       try {
@@ -385,6 +406,9 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
         debits.build();
         _$failedField = 'id';
         id.build();
+
+        _$failedField = 'owner';
+        owner.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Transaction', _$failedField, e.toString());
