@@ -1,8 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
-import 'package:financier/src/models/reference.dart';
-import 'package:financier/src/models/user.dart';
+import 'package:financier/src/models/accounttags.dart';
 
 part 'account.g.dart';
 
@@ -21,15 +20,32 @@ class AccountType extends EnumClass {
   static Serializer<AccountType> get serializer => _$accountTypeSerializer;
 }
 
+abstract class AccountTransaction
+    implements Built<AccountTransaction, AccountTransactionBuilder> {
+  String get transaction;
+  double get runningTotal;
+  String get report;
+
+  AccountTransaction._();
+
+  factory AccountTransaction([updates(AccountTransactionBuilder b)]) =
+      _$AccountTransaction;
+  static Serializer<AccountTransaction> get serializer =>
+      _$accountTransactionSerializer;
+}
+
 abstract class Account implements Built<Account, AccountBuilder> {
-  double get startingBalance;
   String get name;
   String? get memo;
+  double get startingBalance;
   AccountType get type;
-  BuiltList<BuiltDocumentReference> get children;
-  BuiltDocumentReference get id;
-  BuiltDocumentReference? get parent;
-  BuiltUser get owner;
+  String? get parent;
+  BuiltList<String> get children;
+  BuiltList<AccountTag> get tags;
+  BuiltList<AccountTransaction>? get transactions;
+
+  String get id =>
+      "${type.toString()}-${name.replaceAll(" ", "_").toLowerCase()}";
 
   Account._();
 

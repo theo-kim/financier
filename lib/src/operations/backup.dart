@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/reference.dart';
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/master.dart';
 
 typedef Backup = List<Map<String, String>>;
 
@@ -88,7 +89,7 @@ Backup restoreBackupFile(FilePickerResult backup) {
 // Note to self, existing accounts with the same name will be overwritten
 Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
     Future<bool?> Function(String) onWarn) async {
-  List<Account> existing = await AccountActions.manager.getAllAccounts();
+  List<Account> existing = await app.accounts.getAllAccounts();
   // gather account names to be added
   Set<String> newAccountNames = {};
   for (Map<String, String> a in backup) {
@@ -119,15 +120,16 @@ Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
   //    pass one: create a map { Account Name: DocumentReference }
   //    pass two: update each account with its appropriate child / parent data
   try {
-    Map<String, DocumentReference> referenceMap = {};
-    Map<DocumentReference, AccountBuilder> referenceCache = {};
+    Map<String, String> referenceMap = {};
+    Map<String, AccountBuilder> referenceCache = {};
     List<AccountBuilder> restoredAccounts = [];
-    for (Account a in existing)
-      referenceMap[a.name.toLowerCase()] = a.id.reference!;
+    for (Account a in existing) referenceMap[a.name.toLowerCase()] = a.id;
     for (Map<String, String> a in backup)
       if (!overwrittenAccounts.contains(a["Account Name"]!))
         referenceMap[a["Account Name"]!.toLowerCase()] =
-            AccountActions.manager.initAccount();
+            a["Account Type"]!.toLowerCase() +
+                "-" +
+                a["Account Name"]!.replaceAll(" ", "_").toLowerCase();
 
     // update parents
     for (Map<String, String> row in backup) {
@@ -135,24 +137,20 @@ Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
         throw BackupException(
             "Missing account in backup: " + row["Parent Account"]!);
       }
-      final parentRef = BuiltDocumentReference((b) =>
-          b..reference = referenceMap[row["Parent Account"]!.toLowerCase()]!);
-      final selfRef = BuiltDocumentReference((b) =>
-          b..reference = referenceMap[row["Account Name"]!.toLowerCase()]!);
-      final AccountBuilder b = AccountBuilder();
-
-      b
+      String? parentRef;
+      if (row["Parent Account"]!.toLowerCase() != "root")
+        parentRef = referenceMap[row["Parent Account"]!.toLowerCase()];
+      final AccountBuilder b = AccountBuilder()
         ..name = row["Account Name"]
         ..memo = row["Memo"]
         ..startingBalance = moneyParse(row["Starting Balance"])
-        ..parent = parentRef.toBuilder()
+        ..parent = parentRef
         ..children = ListBuilder()
-        ..id = selfRef.toBuilder()
         ..type = AccountType.valueOf(row["Account Type"]!.toLowerCase());
-
+      String selfRef =
+          "${b.type!.toString()}-${b.name!.replaceAll(" ", "_").toLowerCase()}";
       restoredAccounts.add(b);
-      referenceCache[referenceMap[row["Account Name"]!.toLowerCase()]!] =
-          restoredAccounts.last;
+      referenceCache[selfRef] = restoredAccounts.last;
     }
 
     for (Account a in existing) {
@@ -160,16 +158,16 @@ Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
       // Remove the children, they will be recomputed later
 
       restoredAccounts.add(a.toBuilder()..children = ListBuilder());
-      referenceCache[a.id.reference!] = restoredAccounts.last;
+      referenceCache[a.id] = restoredAccounts.last;
     }
 
     for (AccountBuilder a in restoredAccounts) {
-      if (a.parent.reference != null) {
-        referenceCache[a.parent.reference!]!.children.add(a.id.build());
+      if (a.parent != null) {
+        referenceCache[a.parent]!.children.add(a.build().id);
       }
     }
 
-    return await AccountActions.manager.newAccountList(restoredAccounts);
+    return await app.accounts.newAccountList(restoredAccounts);
   } catch (e) {
     throw BackupException(
         "Cannot restore your backup, potentially a malformed file, error message: " +

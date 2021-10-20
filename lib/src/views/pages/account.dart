@@ -3,6 +3,7 @@ import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -44,13 +45,8 @@ class _AccountsPageState extends State<AccountsPage> {
   void _saveAccount(
       AccountBuilder newAccount, Account? parent, BuildContext ctx) async {
     try {
-      Account child = await AccountActions.manager.newAccount(newAccount);
-      if (parent != null) {
-        await AccountActions.manager.addChildAccount(parent, child);
-      } else {
-        Account root = await AccountActions.manager.getRootAccount();
-        await AccountActions.manager.addChildAccount(root, child);
-      }
+      Account child = await app.accounts.newAccount(newAccount);
+      await app.accounts.addChildAccount(parent, child);
       Navigator.of(ctx).pop();
       _accountList.currentState!.reload();
     } catch (e) {
@@ -132,8 +128,8 @@ class _AccountListState extends State<AccountList> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<Account>>(
       future: widget.type == null
-          ? AccountActions.manager.getAllAccounts()
-          : AccountActions.manager.getAccountsByType(widget.type!),
+          ? app.accounts.getAllAccounts()
+          : app.accounts.getAccountsByType(widget.type!),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return _errorContainer(
@@ -204,7 +200,7 @@ class AccountListing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String path = AccountActions.manager.generateAccountPath(account);
+    String path = app.accounts.generateAccountPath(account);
     return Material(
       child: ListTile(
         onTap: () {
@@ -250,7 +246,7 @@ class AccountDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String path = AccountActions.manager.generateAccountPath(account);
+    String path = app.accounts.generateAccountPath(account);
 
     return Padding(
       padding: EdgeInsets.all(20.0),
@@ -293,7 +289,7 @@ class AccountDetails extends StatelessWidget {
                               ]),
                         );
                         if (confirm != null && confirm) {
-                          await AccountActions.manager.deleteAccount(account);
+                          await app.accounts.deleteAccount(account);
                           Navigator.pop(context);
                           accountList.currentState!.reload();
                         }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:financier/src/components/login-button.dart';
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:financier/src/operations/users.dart';
 import 'package:financier/src/views/pages/registration.dart';
@@ -92,8 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     UserActions.manager.signInWithGoogle().then((u) {
                       if (u == null) throw "Null user";
-                      AccountActions.manager = AccountActions();
-                      TransactionActions.manager = TransactionActions();
+                      app.initialize();
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => PrimaryStructure("/"),

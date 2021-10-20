@@ -39,6 +39,8 @@ final BuiltSet<AccountType> _$values =
 ]);
 
 Serializer<AccountType> _$accountTypeSerializer = new _$AccountTypeSerializer();
+Serializer<AccountTransaction> _$accountTransactionSerializer =
+    new _$AccountTransactionSerializer();
 Serializer<Account> _$accountSerializer = new _$AccountSerializer();
 
 class _$AccountTypeSerializer implements PrimitiveSerializer<AccountType> {
@@ -58,6 +60,63 @@ class _$AccountTypeSerializer implements PrimitiveSerializer<AccountType> {
       AccountType.valueOf(serialized as String);
 }
 
+class _$AccountTransactionSerializer
+    implements StructuredSerializer<AccountTransaction> {
+  @override
+  final Iterable<Type> types = const [AccountTransaction, _$AccountTransaction];
+  @override
+  final String wireName = 'AccountTransaction';
+
+  @override
+  Iterable<Object?> serialize(
+      Serializers serializers, AccountTransaction object,
+      {FullType specifiedType = FullType.unspecified}) {
+    final result = <Object?>[
+      'transaction',
+      serializers.serialize(object.transaction,
+          specifiedType: const FullType(String)),
+      'runningTotal',
+      serializers.serialize(object.runningTotal,
+          specifiedType: const FullType(double)),
+      'report',
+      serializers.serialize(object.report,
+          specifiedType: const FullType(String)),
+    ];
+
+    return result;
+  }
+
+  @override
+  AccountTransaction deserialize(
+      Serializers serializers, Iterable<Object?> serialized,
+      {FullType specifiedType = FullType.unspecified}) {
+    final result = new AccountTransactionBuilder();
+
+    final iterator = serialized.iterator;
+    while (iterator.moveNext()) {
+      final key = iterator.current as String;
+      iterator.moveNext();
+      final Object? value = iterator.current;
+      switch (key) {
+        case 'transaction':
+          result.transaction = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
+          break;
+        case 'runningTotal':
+          result.runningTotal = serializers.deserialize(value,
+              specifiedType: const FullType(double)) as double;
+          break;
+        case 'report':
+          result.report = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
+          break;
+      }
+    }
+
+    return result.build();
+  }
+}
+
 class _$AccountSerializer implements StructuredSerializer<Account> {
   @override
   final Iterable<Type> types = const [Account, _$Account];
@@ -68,24 +127,22 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
   Iterable<Object?> serialize(Serializers serializers, Account object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
+      'name',
+      serializers.serialize(object.name, specifiedType: const FullType(String)),
       'startingBalance',
       serializers.serialize(object.startingBalance,
           specifiedType: const FullType(double)),
-      'name',
-      serializers.serialize(object.name, specifiedType: const FullType(String)),
       'type',
       serializers.serialize(object.type,
           specifiedType: const FullType(AccountType)),
       'children',
       serializers.serialize(object.children,
-          specifiedType: const FullType(
-              BuiltList, const [const FullType(BuiltDocumentReference)])),
-      'id',
-      serializers.serialize(object.id,
-          specifiedType: const FullType(BuiltDocumentReference)),
-      'owner',
-      serializers.serialize(object.owner,
-          specifiedType: const FullType(BuiltUser)),
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(String)])),
+      'tags',
+      serializers.serialize(object.tags,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(AccountTag)])),
     ];
     Object? value;
     value = object.memo;
@@ -100,7 +157,15 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
       result
         ..add('parent')
         ..add(serializers.serialize(value,
-            specifiedType: const FullType(BuiltDocumentReference)));
+            specifiedType: const FullType(String)));
+    }
+    value = object.transactions;
+    if (value != null) {
+      result
+        ..add('transactions')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(
+                BuiltList, const [const FullType(AccountTransaction)])));
     }
     return result;
   }
@@ -116,10 +181,6 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
       iterator.moveNext();
       final Object? value = iterator.current;
       switch (key) {
-        case 'startingBalance':
-          result.startingBalance = serializers.deserialize(value,
-              specifiedType: const FullType(double)) as double;
-          break;
         case 'name':
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
@@ -128,29 +189,35 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
           result.memo = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'startingBalance':
+          result.startingBalance = serializers.deserialize(value,
+              specifiedType: const FullType(double)) as double;
+          break;
         case 'type':
           result.type = serializers.deserialize(value,
               specifiedType: const FullType(AccountType)) as AccountType;
           break;
+        case 'parent':
+          result.parent = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
         case 'children':
           result.children.replace(serializers.deserialize(value,
-              specifiedType: const FullType(BuiltList, const [
-                const FullType(BuiltDocumentReference)
-              ]))! as BuiltList<Object?>);
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(String)]))!
+              as BuiltList<Object?>);
           break;
-        case 'id':
-          result.id.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(BuiltDocumentReference))!
-              as BuiltDocumentReference);
+        case 'tags':
+          result.tags.replace(serializers.deserialize(value,
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(AccountTag)]))!
+              as BuiltList<Object?>);
           break;
-        case 'parent':
-          result.parent.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(BuiltDocumentReference))!
-              as BuiltDocumentReference);
-          break;
-        case 'owner':
-          result.owner.replace(serializers.deserialize(value,
-              specifiedType: const FullType(BuiltUser))! as BuiltUser);
+        case 'transactions':
+          result.transactions.replace(serializers.deserialize(value,
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(AccountTransaction)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -159,44 +226,157 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
   }
 }
 
-class _$Account extends Account {
+class _$AccountTransaction extends AccountTransaction {
   @override
-  final double startingBalance;
+  final String transaction;
+  @override
+  final double runningTotal;
+  @override
+  final String report;
+
+  factory _$AccountTransaction(
+          [void Function(AccountTransactionBuilder)? updates]) =>
+      (new AccountTransactionBuilder()..update(updates)).build();
+
+  _$AccountTransaction._(
+      {required this.transaction,
+      required this.runningTotal,
+      required this.report})
+      : super._() {
+    BuiltValueNullFieldError.checkNotNull(
+        transaction, 'AccountTransaction', 'transaction');
+    BuiltValueNullFieldError.checkNotNull(
+        runningTotal, 'AccountTransaction', 'runningTotal');
+    BuiltValueNullFieldError.checkNotNull(
+        report, 'AccountTransaction', 'report');
+  }
+
+  @override
+  AccountTransaction rebuild(
+          void Function(AccountTransactionBuilder) updates) =>
+      (toBuilder()..update(updates)).build();
+
+  @override
+  AccountTransactionBuilder toBuilder() =>
+      new AccountTransactionBuilder()..replace(this);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(other, this)) return true;
+    return other is AccountTransaction &&
+        transaction == other.transaction &&
+        runningTotal == other.runningTotal &&
+        report == other.report;
+  }
+
+  @override
+  int get hashCode {
+    return $jf($jc($jc($jc(0, transaction.hashCode), runningTotal.hashCode),
+        report.hashCode));
+  }
+
+  @override
+  String toString() {
+    return (newBuiltValueToStringHelper('AccountTransaction')
+          ..add('transaction', transaction)
+          ..add('runningTotal', runningTotal)
+          ..add('report', report))
+        .toString();
+  }
+}
+
+class AccountTransactionBuilder
+    implements Builder<AccountTransaction, AccountTransactionBuilder> {
+  _$AccountTransaction? _$v;
+
+  String? _transaction;
+  String? get transaction => _$this._transaction;
+  set transaction(String? transaction) => _$this._transaction = transaction;
+
+  double? _runningTotal;
+  double? get runningTotal => _$this._runningTotal;
+  set runningTotal(double? runningTotal) => _$this._runningTotal = runningTotal;
+
+  String? _report;
+  String? get report => _$this._report;
+  set report(String? report) => _$this._report = report;
+
+  AccountTransactionBuilder();
+
+  AccountTransactionBuilder get _$this {
+    final $v = _$v;
+    if ($v != null) {
+      _transaction = $v.transaction;
+      _runningTotal = $v.runningTotal;
+      _report = $v.report;
+      _$v = null;
+    }
+    return this;
+  }
+
+  @override
+  void replace(AccountTransaction other) {
+    ArgumentError.checkNotNull(other, 'other');
+    _$v = other as _$AccountTransaction;
+  }
+
+  @override
+  void update(void Function(AccountTransactionBuilder)? updates) {
+    if (updates != null) updates(this);
+  }
+
+  @override
+  _$AccountTransaction build() {
+    final _$result = _$v ??
+        new _$AccountTransaction._(
+            transaction: BuiltValueNullFieldError.checkNotNull(
+                transaction, 'AccountTransaction', 'transaction'),
+            runningTotal: BuiltValueNullFieldError.checkNotNull(
+                runningTotal, 'AccountTransaction', 'runningTotal'),
+            report: BuiltValueNullFieldError.checkNotNull(
+                report, 'AccountTransaction', 'report'));
+    replace(_$result);
+    return _$result;
+  }
+}
+
+class _$Account extends Account {
   @override
   final String name;
   @override
   final String? memo;
   @override
+  final double startingBalance;
+  @override
   final AccountType type;
   @override
-  final BuiltList<BuiltDocumentReference> children;
+  final String? parent;
   @override
-  final BuiltDocumentReference id;
+  final BuiltList<String> children;
   @override
-  final BuiltDocumentReference? parent;
+  final BuiltList<AccountTag> tags;
   @override
-  final BuiltUser owner;
+  final BuiltList<AccountTransaction>? transactions;
 
   factory _$Account([void Function(AccountBuilder)? updates]) =>
       (new AccountBuilder()..update(updates)).build();
 
   _$Account._(
-      {required this.startingBalance,
-      required this.name,
+      {required this.name,
       this.memo,
+      required this.startingBalance,
       required this.type,
-      required this.children,
-      required this.id,
       this.parent,
-      required this.owner})
+      required this.children,
+      required this.tags,
+      this.transactions})
       : super._() {
+    BuiltValueNullFieldError.checkNotNull(name, 'Account', 'name');
     BuiltValueNullFieldError.checkNotNull(
         startingBalance, 'Account', 'startingBalance');
-    BuiltValueNullFieldError.checkNotNull(name, 'Account', 'name');
     BuiltValueNullFieldError.checkNotNull(type, 'Account', 'type');
     BuiltValueNullFieldError.checkNotNull(children, 'Account', 'children');
-    BuiltValueNullFieldError.checkNotNull(id, 'Account', 'id');
-    BuiltValueNullFieldError.checkNotNull(owner, 'Account', 'owner');
+    BuiltValueNullFieldError.checkNotNull(tags, 'Account', 'tags');
   }
 
   @override
@@ -210,14 +390,14 @@ class _$Account extends Account {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is Account &&
-        startingBalance == other.startingBalance &&
         name == other.name &&
         memo == other.memo &&
+        startingBalance == other.startingBalance &&
         type == other.type &&
-        children == other.children &&
-        id == other.id &&
         parent == other.parent &&
-        owner == other.owner;
+        children == other.children &&
+        tags == other.tags &&
+        transactions == other.transactions;
   }
 
   @override
@@ -227,39 +407,32 @@ class _$Account extends Account {
             $jc(
                 $jc(
                     $jc(
-                        $jc(
-                            $jc($jc(0, startingBalance.hashCode),
-                                name.hashCode),
-                            memo.hashCode),
+                        $jc($jc($jc(0, name.hashCode), memo.hashCode),
+                            startingBalance.hashCode),
                         type.hashCode),
-                    children.hashCode),
-                id.hashCode),
-            parent.hashCode),
-        owner.hashCode));
+                    parent.hashCode),
+                children.hashCode),
+            tags.hashCode),
+        transactions.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('Account')
-          ..add('startingBalance', startingBalance)
           ..add('name', name)
           ..add('memo', memo)
+          ..add('startingBalance', startingBalance)
           ..add('type', type)
-          ..add('children', children)
-          ..add('id', id)
           ..add('parent', parent)
-          ..add('owner', owner))
+          ..add('children', children)
+          ..add('tags', tags)
+          ..add('transactions', transactions))
         .toString();
   }
 }
 
 class AccountBuilder implements Builder<Account, AccountBuilder> {
   _$Account? _$v;
-
-  double? _startingBalance;
-  double? get startingBalance => _$this._startingBalance;
-  set startingBalance(double? startingBalance) =>
-      _$this._startingBalance = startingBalance;
 
   String? _name;
   String? get name => _$this._name;
@@ -269,43 +442,48 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
   String? get memo => _$this._memo;
   set memo(String? memo) => _$this._memo = memo;
 
+  double? _startingBalance;
+  double? get startingBalance => _$this._startingBalance;
+  set startingBalance(double? startingBalance) =>
+      _$this._startingBalance = startingBalance;
+
   AccountType? _type;
   AccountType? get type => _$this._type;
   set type(AccountType? type) => _$this._type = type;
 
-  ListBuilder<BuiltDocumentReference>? _children;
-  ListBuilder<BuiltDocumentReference> get children =>
-      _$this._children ??= new ListBuilder<BuiltDocumentReference>();
-  set children(ListBuilder<BuiltDocumentReference>? children) =>
-      _$this._children = children;
+  String? _parent;
+  String? get parent => _$this._parent;
+  set parent(String? parent) => _$this._parent = parent;
 
-  BuiltDocumentReferenceBuilder? _id;
-  BuiltDocumentReferenceBuilder get id =>
-      _$this._id ??= new BuiltDocumentReferenceBuilder();
-  set id(BuiltDocumentReferenceBuilder? id) => _$this._id = id;
+  ListBuilder<String>? _children;
+  ListBuilder<String> get children =>
+      _$this._children ??= new ListBuilder<String>();
+  set children(ListBuilder<String>? children) => _$this._children = children;
 
-  BuiltDocumentReferenceBuilder? _parent;
-  BuiltDocumentReferenceBuilder get parent =>
-      _$this._parent ??= new BuiltDocumentReferenceBuilder();
-  set parent(BuiltDocumentReferenceBuilder? parent) => _$this._parent = parent;
+  ListBuilder<AccountTag>? _tags;
+  ListBuilder<AccountTag> get tags =>
+      _$this._tags ??= new ListBuilder<AccountTag>();
+  set tags(ListBuilder<AccountTag>? tags) => _$this._tags = tags;
 
-  BuiltUserBuilder? _owner;
-  BuiltUserBuilder get owner => _$this._owner ??= new BuiltUserBuilder();
-  set owner(BuiltUserBuilder? owner) => _$this._owner = owner;
+  ListBuilder<AccountTransaction>? _transactions;
+  ListBuilder<AccountTransaction> get transactions =>
+      _$this._transactions ??= new ListBuilder<AccountTransaction>();
+  set transactions(ListBuilder<AccountTransaction>? transactions) =>
+      _$this._transactions = transactions;
 
   AccountBuilder();
 
   AccountBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _startingBalance = $v.startingBalance;
       _name = $v.name;
       _memo = $v.memo;
+      _startingBalance = $v.startingBalance;
       _type = $v.type;
+      _parent = $v.parent;
       _children = $v.children.toBuilder();
-      _id = $v.id.toBuilder();
-      _parent = $v.parent?.toBuilder();
-      _owner = $v.owner.toBuilder();
+      _tags = $v.tags.toBuilder();
+      _transactions = $v.transactions?.toBuilder();
       _$v = null;
     }
     return this;
@@ -328,28 +506,26 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
     try {
       _$result = _$v ??
           new _$Account._(
-              startingBalance: BuiltValueNullFieldError.checkNotNull(
-                  startingBalance, 'Account', 'startingBalance'),
               name: BuiltValueNullFieldError.checkNotNull(
                   name, 'Account', 'name'),
               memo: memo,
+              startingBalance: BuiltValueNullFieldError.checkNotNull(
+                  startingBalance, 'Account', 'startingBalance'),
               type: BuiltValueNullFieldError.checkNotNull(
                   type, 'Account', 'type'),
+              parent: parent,
               children: children.build(),
-              id: id.build(),
-              parent: _parent?.build(),
-              owner: owner.build());
+              tags: tags.build(),
+              transactions: _transactions?.build());
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'children';
         children.build();
-        _$failedField = 'id';
-        id.build();
-        _$failedField = 'parent';
-        _parent?.build();
-        _$failedField = 'owner';
-        owner.build();
+        _$failedField = 'tags';
+        tags.build();
+        _$failedField = 'transactions';
+        _transactions?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Account', _$failedField, e.toString());

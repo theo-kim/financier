@@ -1,4 +1,5 @@
 import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:financier/src/operations/users.dart';
@@ -18,14 +19,11 @@ class _AppState extends State<MyApp> {
   Future<bool> _setUpApp() async {
     await Firebase.initializeApp();
     preferences = await SharedPreferences.getInstance();
-    UserActions.manager = UserActions();
-    if (!UserActions.manager.isLoggedIn()) {
-      // not signed in
+    try {
+      app.initialize();
+    } on UnauthenticatedError catch (e) {
       return false;
     }
-    AccountActions.manager = AccountActions();
-    TransactionActions.manager = TransactionActions();
-    await AccountActions.manager.getAllAccounts();
     return true;
   }
 

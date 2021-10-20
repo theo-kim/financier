@@ -79,40 +79,21 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
     final result = <Object?>[
       'date',
       serializers.serialize(object.date,
-          specifiedType: const FullType(DateTime)),
+          specifiedType: const FullType(BuiltTimestamp)),
       'payer',
       serializers.serialize(object.payer,
           specifiedType: const FullType(String)),
-      'credits',
-      serializers.serialize(object.credits,
-          specifiedType: const FullType(
-              BuiltList, const [const FullType(TransactionSplit)])),
-      'debits',
-      serializers.serialize(object.debits,
+      'splits',
+      serializers.serialize(object.splits,
           specifiedType: const FullType(
               BuiltList, const [const FullType(TransactionSplit)])),
       'id',
-      serializers.serialize(object.id,
-          specifiedType: const FullType(BuiltDocumentReference)),
-      'owner',
-      serializers.serialize(object.owner,
-          specifiedType: const FullType(BuiltUser)),
+      serializers.serialize(object.id, specifiedType: const FullType(String)),
+      'type',
+      serializers.serialize(object.type,
+          specifiedType: const FullType(TransactionType)),
     ];
-    Object? value;
-    value = object.details;
-    if (value != null) {
-      result
-        ..add('details')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.type;
-    if (value != null) {
-      result
-        ..add('type')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(TransactionType)));
-    }
+
     return result;
   }
 
@@ -128,42 +109,28 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
       final Object? value = iterator.current;
       switch (key) {
         case 'date':
-          result.date = serializers.deserialize(value,
-              specifiedType: const FullType(DateTime)) as DateTime;
-          break;
-        case 'details':
-          result.details = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String?;
+          result.date.replace(serializers.deserialize(value,
+                  specifiedType: const FullType(BuiltTimestamp))!
+              as BuiltTimestamp);
           break;
         case 'payer':
           result.payer = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
           break;
-        case 'credits':
-          result.credits.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(
-                      BuiltList, const [const FullType(TransactionSplit)]))!
-              as BuiltList<Object?>);
-          break;
-        case 'debits':
-          result.debits.replace(serializers.deserialize(value,
+        case 'splits':
+          result.splits.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(TransactionSplit)]))!
               as BuiltList<Object?>);
           break;
         case 'id':
-          result.id.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(BuiltDocumentReference))!
-              as BuiltDocumentReference);
+          result.id = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
           break;
         case 'type':
           result.type = serializers.deserialize(value,
                   specifiedType: const FullType(TransactionType))
-              as TransactionType?;
-          break;
-        case 'owner':
-          result.owner.replace(serializers.deserialize(value,
-              specifiedType: const FullType(BuiltUser))! as BuiltUser);
+              as TransactionType;
           break;
       }
     }
@@ -188,7 +155,10 @@ class _$TransactionSplitSerializer
           specifiedType: const FullType(double)),
       'account',
       serializers.serialize(object.account,
-          specifiedType: const FullType(BuiltDocumentReference)),
+          specifiedType: const FullType(String)),
+      'details',
+      serializers.serialize(object.details,
+          specifiedType: const FullType(String)),
     ];
 
     return result;
@@ -211,9 +181,12 @@ class _$TransactionSplitSerializer
               specifiedType: const FullType(double)) as double;
           break;
         case 'account':
-          result.account.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(BuiltDocumentReference))!
-              as BuiltDocumentReference);
+          result.account = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
+          break;
+        case 'details':
+          result.details = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
           break;
       }
     }
@@ -224,41 +197,31 @@ class _$TransactionSplitSerializer
 
 class _$Transaction extends Transaction {
   @override
-  final DateTime date;
-  @override
-  final String? details;
+  final BuiltTimestamp date;
   @override
   final String payer;
   @override
-  final BuiltList<TransactionSplit> credits;
+  final BuiltList<TransactionSplit> splits;
   @override
-  final BuiltList<TransactionSplit> debits;
+  final String id;
   @override
-  final BuiltDocumentReference id;
-  @override
-  final TransactionType? type;
-  @override
-  final BuiltUser owner;
+  final TransactionType type;
 
   factory _$Transaction([void Function(TransactionBuilder)? updates]) =>
       (new TransactionBuilder()..update(updates)).build();
 
   _$Transaction._(
       {required this.date,
-      this.details,
       required this.payer,
-      required this.credits,
-      required this.debits,
+      required this.splits,
       required this.id,
-      this.type,
-      required this.owner})
+      required this.type})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(date, 'Transaction', 'date');
     BuiltValueNullFieldError.checkNotNull(payer, 'Transaction', 'payer');
-    BuiltValueNullFieldError.checkNotNull(credits, 'Transaction', 'credits');
-    BuiltValueNullFieldError.checkNotNull(debits, 'Transaction', 'debits');
+    BuiltValueNullFieldError.checkNotNull(splits, 'Transaction', 'splits');
     BuiltValueNullFieldError.checkNotNull(id, 'Transaction', 'id');
-    BuiltValueNullFieldError.checkNotNull(owner, 'Transaction', 'owner');
+    BuiltValueNullFieldError.checkNotNull(type, 'Transaction', 'type');
   }
 
   @override
@@ -273,42 +236,28 @@ class _$Transaction extends Transaction {
     if (identical(other, this)) return true;
     return other is Transaction &&
         date == other.date &&
-        details == other.details &&
         payer == other.payer &&
-        credits == other.credits &&
-        debits == other.debits &&
+        splits == other.splits &&
         id == other.id &&
-        type == other.type &&
-        owner == other.owner;
+        type == other.type;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc($jc($jc(0, date.hashCode), details.hashCode),
-                            payer.hashCode),
-                        credits.hashCode),
-                    debits.hashCode),
-                id.hashCode),
-            type.hashCode),
-        owner.hashCode));
+        $jc($jc($jc($jc(0, date.hashCode), payer.hashCode), splits.hashCode),
+            id.hashCode),
+        type.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('Transaction')
           ..add('date', date)
-          ..add('details', details)
           ..add('payer', payer)
-          ..add('credits', credits)
-          ..add('debits', debits)
+          ..add('splits', splits)
           ..add('id', id)
-          ..add('type', type)
-          ..add('owner', owner))
+          ..add('type', type))
         .toString();
   }
 }
@@ -316,55 +265,38 @@ class _$Transaction extends Transaction {
 class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
   _$Transaction? _$v;
 
-  DateTime? _date;
-  DateTime? get date => _$this._date;
-  set date(DateTime? date) => _$this._date = date;
-
-  String? _details;
-  String? get details => _$this._details;
-  set details(String? details) => _$this._details = details;
+  BuiltTimestampBuilder? _date;
+  BuiltTimestampBuilder get date =>
+      _$this._date ??= new BuiltTimestampBuilder();
+  set date(BuiltTimestampBuilder? date) => _$this._date = date;
 
   String? _payer;
   String? get payer => _$this._payer;
   set payer(String? payer) => _$this._payer = payer;
 
-  ListBuilder<TransactionSplit>? _credits;
-  ListBuilder<TransactionSplit> get credits =>
-      _$this._credits ??= new ListBuilder<TransactionSplit>();
-  set credits(ListBuilder<TransactionSplit>? credits) =>
-      _$this._credits = credits;
+  ListBuilder<TransactionSplit>? _splits;
+  ListBuilder<TransactionSplit> get splits =>
+      _$this._splits ??= new ListBuilder<TransactionSplit>();
+  set splits(ListBuilder<TransactionSplit>? splits) => _$this._splits = splits;
 
-  ListBuilder<TransactionSplit>? _debits;
-  ListBuilder<TransactionSplit> get debits =>
-      _$this._debits ??= new ListBuilder<TransactionSplit>();
-  set debits(ListBuilder<TransactionSplit>? debits) => _$this._debits = debits;
-
-  BuiltDocumentReferenceBuilder? _id;
-  BuiltDocumentReferenceBuilder get id =>
-      _$this._id ??= new BuiltDocumentReferenceBuilder();
-  set id(BuiltDocumentReferenceBuilder? id) => _$this._id = id;
+  String? _id;
+  String? get id => _$this._id;
+  set id(String? id) => _$this._id = id;
 
   TransactionType? _type;
   TransactionType? get type => _$this._type;
   set type(TransactionType? type) => _$this._type = type;
-
-  BuiltUserBuilder? _owner;
-  BuiltUserBuilder get owner => _$this._owner ??= new BuiltUserBuilder();
-  set owner(BuiltUserBuilder? owner) => _$this._owner = owner;
 
   TransactionBuilder();
 
   TransactionBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _date = $v.date;
-      _details = $v.details;
+      _date = $v.date.toBuilder();
       _payer = $v.payer;
-      _credits = $v.credits.toBuilder();
-      _debits = $v.debits.toBuilder();
-      _id = $v.id.toBuilder();
+      _splits = $v.splits.toBuilder();
+      _id = $v.id;
       _type = $v.type;
-      _owner = $v.owner.toBuilder();
       _$v = null;
     }
     return this;
@@ -387,28 +319,22 @@ class TransactionBuilder implements Builder<Transaction, TransactionBuilder> {
     try {
       _$result = _$v ??
           new _$Transaction._(
-              date: BuiltValueNullFieldError.checkNotNull(
-                  date, 'Transaction', 'date'),
-              details: details,
+              date: date.build(),
               payer: BuiltValueNullFieldError.checkNotNull(
                   payer, 'Transaction', 'payer'),
-              credits: credits.build(),
-              debits: debits.build(),
-              id: id.build(),
-              type: type,
-              owner: owner.build());
+              splits: splits.build(),
+              id: BuiltValueNullFieldError.checkNotNull(
+                  id, 'Transaction', 'id'),
+              type: BuiltValueNullFieldError.checkNotNull(
+                  type, 'Transaction', 'type'));
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'credits';
-        credits.build();
-        _$failedField = 'debits';
-        debits.build();
-        _$failedField = 'id';
-        id.build();
+        _$failedField = 'date';
+        date.build();
 
-        _$failedField = 'owner';
-        owner.build();
+        _$failedField = 'splits';
+        splits.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Transaction', _$failedField, e.toString());
@@ -424,17 +350,22 @@ class _$TransactionSplit extends TransactionSplit {
   @override
   final double amount;
   @override
-  final BuiltDocumentReference account;
+  final String account;
+  @override
+  final String details;
 
   factory _$TransactionSplit(
           [void Function(TransactionSplitBuilder)? updates]) =>
       (new TransactionSplitBuilder()..update(updates)).build();
 
-  _$TransactionSplit._({required this.amount, required this.account})
+  _$TransactionSplit._(
+      {required this.amount, required this.account, required this.details})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(amount, 'TransactionSplit', 'amount');
     BuiltValueNullFieldError.checkNotNull(
         account, 'TransactionSplit', 'account');
+    BuiltValueNullFieldError.checkNotNull(
+        details, 'TransactionSplit', 'details');
   }
 
   @override
@@ -450,19 +381,22 @@ class _$TransactionSplit extends TransactionSplit {
     if (identical(other, this)) return true;
     return other is TransactionSplit &&
         amount == other.amount &&
-        account == other.account;
+        account == other.account &&
+        details == other.details;
   }
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, amount.hashCode), account.hashCode));
+    return $jf(
+        $jc($jc($jc(0, amount.hashCode), account.hashCode), details.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('TransactionSplit')
           ..add('amount', amount)
-          ..add('account', account))
+          ..add('account', account)
+          ..add('details', details))
         .toString();
   }
 }
@@ -475,11 +409,13 @@ class TransactionSplitBuilder
   double? get amount => _$this._amount;
   set amount(double? amount) => _$this._amount = amount;
 
-  BuiltDocumentReferenceBuilder? _account;
-  BuiltDocumentReferenceBuilder get account =>
-      _$this._account ??= new BuiltDocumentReferenceBuilder();
-  set account(BuiltDocumentReferenceBuilder? account) =>
-      _$this._account = account;
+  String? _account;
+  String? get account => _$this._account;
+  set account(String? account) => _$this._account = account;
+
+  String? _details;
+  String? get details => _$this._details;
+  set details(String? details) => _$this._details = details;
 
   TransactionSplitBuilder();
 
@@ -487,7 +423,8 @@ class TransactionSplitBuilder
     final $v = _$v;
     if ($v != null) {
       _amount = $v.amount;
-      _account = $v.account.toBuilder();
+      _account = $v.account;
+      _details = $v.details;
       _$v = null;
     }
     return this;
@@ -506,24 +443,14 @@ class TransactionSplitBuilder
 
   @override
   _$TransactionSplit build() {
-    _$TransactionSplit _$result;
-    try {
-      _$result = _$v ??
-          new _$TransactionSplit._(
-              amount: BuiltValueNullFieldError.checkNotNull(
-                  amount, 'TransactionSplit', 'amount'),
-              account: account.build());
-    } catch (_) {
-      late String _$failedField;
-      try {
-        _$failedField = 'account';
-        account.build();
-      } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            'TransactionSplit', _$failedField, e.toString());
-      }
-      rethrow;
-    }
+    final _$result = _$v ??
+        new _$TransactionSplit._(
+            amount: BuiltValueNullFieldError.checkNotNull(
+                amount, 'TransactionSplit', 'amount'),
+            account: BuiltValueNullFieldError.checkNotNull(
+                account, 'TransactionSplit', 'account'),
+            details: BuiltValueNullFieldError.checkNotNull(
+                details, 'TransactionSplit', 'details'));
     replace(_$result);
     return _$result;
   }

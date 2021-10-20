@@ -9,23 +9,31 @@ part of 'serializer.dart';
 Serializers _$referenceSerializers = (new Serializers().toBuilder()
       ..add(BuiltDocumentReference.serializer))
     .build();
-Serializers _$userSerializers =
-    (new Serializers().toBuilder()..add(BuiltUser.serializer)).build();
+Serializers _$builtTimestampSerializers =
+    (new Serializers().toBuilder()..add(BuiltTimestamp.serializer)).build();
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Account.serializer)
+      ..add(AccountTag.serializer)
+      ..add(AccountTransaction.serializer)
       ..add(AccountType.serializer)
-      ..add(BuiltDocumentReference.serializer)
+      ..add(BuiltTimestamp.serializer)
       ..add(BuiltUser.serializer)
+      ..add(Report.serializer)
       ..add(Transaction.serializer)
       ..add(TransactionSplit.serializer)
       ..add(TransactionType.serializer)
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(BuiltDocumentReference)]),
-          () => new ListBuilder<BuiltDocumentReference>())
+          const FullType(BuiltList, const [const FullType(Report)]),
+          () => new ListBuilder<Report>())
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(TransactionSplit)]),
-          () => new ListBuilder<TransactionSplit>())
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => new ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(AccountTag)]),
+          () => new ListBuilder<AccountTag>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(AccountTransaction)]),
+          () => new ListBuilder<AccountTransaction>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TransactionSplit)]),
           () => new ListBuilder<TransactionSplit>()))
