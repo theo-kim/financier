@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class TransactionDetailsField extends StandardFormField {
   TransactionDetailsField(
-      {bool required = true, required OnSavedFunction onSaved})
-      : super(required, onSaved);
+      {bool required = true, required Function(String) onChanged})
+      : super(required, onChanged);
 
   Widget build(BuildContext context) {
     return TextFormField(
@@ -14,9 +14,7 @@ class TransactionDetailsField extends StandardFormField {
         }
         return null;
       },
-      onSaved: (value) {
-        this.onSaved(value);
-      },
+      onChanged: this.onChanged,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: "Transaction Details",

@@ -43,9 +43,31 @@ final BuiltSet<TransactionType> _$values =
   _$none,
 ]);
 
+const TransactionSplitType _$debit = const TransactionSplitType._('debit');
+const TransactionSplitType _$credit = const TransactionSplitType._('credit');
+
+TransactionSplitType _$valueOfSplit(String name) {
+  switch (name) {
+    case 'debit':
+      return _$debit;
+    case 'credit':
+      return _$credit;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<TransactionSplitType> _$valuesSplit =
+    new BuiltSet<TransactionSplitType>(const <TransactionSplitType>[
+  _$debit,
+  _$credit,
+]);
+
 Serializer<TransactionType> _$transactionTypeSerializer =
     new _$TransactionTypeSerializer();
 Serializer<Transaction> _$transactionSerializer = new _$TransactionSerializer();
+Serializer<TransactionSplitType> _$transactionSplitTypeSerializer =
+    new _$TransactionSplitTypeSerializer();
 Serializer<TransactionSplit> _$transactionSplitSerializer =
     new _$TransactionSplitSerializer();
 
@@ -139,6 +161,24 @@ class _$TransactionSerializer implements StructuredSerializer<Transaction> {
   }
 }
 
+class _$TransactionSplitTypeSerializer
+    implements PrimitiveSerializer<TransactionSplitType> {
+  @override
+  final Iterable<Type> types = const <Type>[TransactionSplitType];
+  @override
+  final String wireName = 'TransactionSplitType';
+
+  @override
+  Object serialize(Serializers serializers, TransactionSplitType object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  TransactionSplitType deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      TransactionSplitType.valueOf(serialized as String);
+}
+
 class _$TransactionSplitSerializer
     implements StructuredSerializer<TransactionSplit> {
   @override
@@ -159,6 +199,9 @@ class _$TransactionSplitSerializer
       'details',
       serializers.serialize(object.details,
           specifiedType: const FullType(String)),
+      'type',
+      serializers.serialize(object.type,
+          specifiedType: const FullType(TransactionSplitType)),
     ];
 
     return result;
@@ -187,6 +230,11 @@ class _$TransactionSplitSerializer
         case 'details':
           result.details = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
+          break;
+        case 'type':
+          result.type = serializers.deserialize(value,
+                  specifiedType: const FullType(TransactionSplitType))
+              as TransactionSplitType;
           break;
       }
     }
@@ -353,19 +401,25 @@ class _$TransactionSplit extends TransactionSplit {
   final String account;
   @override
   final String details;
+  @override
+  final TransactionSplitType type;
 
   factory _$TransactionSplit(
           [void Function(TransactionSplitBuilder)? updates]) =>
       (new TransactionSplitBuilder()..update(updates)).build();
 
   _$TransactionSplit._(
-      {required this.amount, required this.account, required this.details})
+      {required this.amount,
+      required this.account,
+      required this.details,
+      required this.type})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(amount, 'TransactionSplit', 'amount');
     BuiltValueNullFieldError.checkNotNull(
         account, 'TransactionSplit', 'account');
     BuiltValueNullFieldError.checkNotNull(
         details, 'TransactionSplit', 'details');
+    BuiltValueNullFieldError.checkNotNull(type, 'TransactionSplit', 'type');
   }
 
   @override
@@ -382,13 +436,15 @@ class _$TransactionSplit extends TransactionSplit {
     return other is TransactionSplit &&
         amount == other.amount &&
         account == other.account &&
-        details == other.details;
+        details == other.details &&
+        type == other.type;
   }
 
   @override
   int get hashCode {
-    return $jf(
-        $jc($jc($jc(0, amount.hashCode), account.hashCode), details.hashCode));
+    return $jf($jc(
+        $jc($jc($jc(0, amount.hashCode), account.hashCode), details.hashCode),
+        type.hashCode));
   }
 
   @override
@@ -396,7 +452,8 @@ class _$TransactionSplit extends TransactionSplit {
     return (newBuiltValueToStringHelper('TransactionSplit')
           ..add('amount', amount)
           ..add('account', account)
-          ..add('details', details))
+          ..add('details', details)
+          ..add('type', type))
         .toString();
   }
 }
@@ -417,6 +474,10 @@ class TransactionSplitBuilder
   String? get details => _$this._details;
   set details(String? details) => _$this._details = details;
 
+  TransactionSplitType? _type;
+  TransactionSplitType? get type => _$this._type;
+  set type(TransactionSplitType? type) => _$this._type = type;
+
   TransactionSplitBuilder();
 
   TransactionSplitBuilder get _$this {
@@ -425,6 +486,7 @@ class TransactionSplitBuilder
       _amount = $v.amount;
       _account = $v.account;
       _details = $v.details;
+      _type = $v.type;
       _$v = null;
     }
     return this;
@@ -450,7 +512,9 @@ class TransactionSplitBuilder
             account: BuiltValueNullFieldError.checkNotNull(
                 account, 'TransactionSplit', 'account'),
             details: BuiltValueNullFieldError.checkNotNull(
-                details, 'TransactionSplit', 'details'));
+                details, 'TransactionSplit', 'details'),
+            type: BuiltValueNullFieldError.checkNotNull(
+                type, 'TransactionSplit', 'type'));
     replace(_$result);
     return _$result;
   }

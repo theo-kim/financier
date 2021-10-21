@@ -2,14 +2,12 @@ import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 
-typedef void OnSavedFunctionDateTime(DateTime value);
-
 class TransactionDateField extends StatelessWidget {
   TransactionDateField(this.dateController,
-      {required this.onSaved, this.required = true});
+      {required this.onChanged, this.required = true});
 
   final TextEditingController dateController;
-  final OnSavedFunctionDateTime onSaved;
+  final Function(DateTime? d) onChanged;
   final bool required;
 
   @override
@@ -34,9 +32,12 @@ class TransactionDateField extends StatelessWidget {
         ),
         contentPadding: EdgeInsets.all(10.0),
       ),
-      onSaved: (value) {
-        if (value != null) {
-          this.onSaved(DateFormatter.getAvailable(
+      initialValue: null,
+      onChanged: (String? value) {
+        if (value == null || value.length == 0)
+          this.onChanged(null); // TODO: test
+        else {
+          this.onChanged(DateFormatter.getAvailable(
                   preferences.getString("date_formatter"))
               .unformatDate(value)
               .toUtc());

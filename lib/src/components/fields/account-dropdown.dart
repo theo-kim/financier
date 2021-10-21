@@ -1,16 +1,16 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:financier/src/models/account.dart';
-import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:flutter/material.dart';
 
 class AccountDropdownField extends StatefulWidget {
   AccountDropdownField(
-      {required this.onSaved,
+      {required this.onChanged,
       required this.errorMessage,
       required this.label,
       this.required = true});
 
-  final void Function(Account?) onSaved;
+  final void Function(Account?) onChanged;
   final String errorMessage;
   final String label;
   final bool required;
@@ -36,7 +36,7 @@ class _AccountDropdownFieldState extends State<AccountDropdownField> {
   @override
   void initState() {
     super.initState();
-    AccountActions.manager.getAllAccounts().then((accounts) {
+    app.accounts.getAllAccounts().then((accounts) {
       setState(() {
         _accounts = accounts;
       });
@@ -52,8 +52,8 @@ class _AccountDropdownFieldState extends State<AccountDropdownField> {
         }
         return null;
       },
+      onChanged: widget.onChanged,
       showClearButton: true,
-      onSaved: widget.onSaved,
       autoFocusSearchBox: true,
       showSearchBox: true,
       mode: Mode.BOTTOM_SHEET,

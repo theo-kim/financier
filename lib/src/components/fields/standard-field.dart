@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-typedef void OnSavedFunction(String? value);
-
 abstract class StandardFormField extends StatelessWidget {
-  StandardFormField(this.required, this.onSaved);
+  StandardFormField(this.required, this.onChanged);
 
   final bool required;
-  final OnSavedFunction onSaved;
+  final Function(String value) onChanged;
 }

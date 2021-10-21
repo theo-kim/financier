@@ -21,6 +21,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Report.serializer)
       ..add(Transaction.serializer)
       ..add(TransactionSplit.serializer)
+      ..add(TransactionSplitType.serializer)
       ..add(TransactionType.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Report)]),

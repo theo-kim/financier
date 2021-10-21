@@ -1,6 +1,7 @@
 import 'package:financier/src/components/transaction-entry-form.dart';
 import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/date.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     return Stack(children: [
       FutureBuilder(
-        future: TransactionActions.manager.getAllTransactions(),
+        future: app.transactions.getAllTransactions(),
         builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
           if (snapshot.hasError) {
             return _errorContainer(
@@ -188,21 +189,16 @@ class TransactionListing extends StatelessWidget {
         onTap: () {},
         contentPadding: EdgeInsets.zero,
         title: Column(
-          children: (transaction.credits + transaction.debits)
+          children: (transaction.splits)
               .map<Widget>(
                 (e) => Row(
                   children: <String, int>{
                     (transaction.type != null
                         ? transaction.type.toString()
                         : "Transfer"): 1,
-                    formatter.formatDate(transaction.date): 1,
-                    AccountActions.manager
-                        .getCachedAccountByReference(e.account.reference!)
-                        .name: 2,
-                    (transaction.credits.indexOf(e) >= 0
-                        ? (-1 * e.amount)
-                            .toString() // TODO: How many decimal places to show for doubles?
-                        : e.amount.toString()): 1,
+                    formatter.formatDate(transaction.date.date): 1,
+                    app.accounts.getCachedAccountByReference(e.account).name: 2,
+                    e.amount.toString(): 1,
                   }
                       .entries
                       .map<Widget>(

@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financier/src/models/timestamp.dart';
+import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
 
@@ -22,28 +25,22 @@ class _TransactionEntryState extends State<TransactionEntry> {
   final _dateController = TextEditingController();
 
   void _addTransaction() {
-    TransactionActions.manager.newTransaction(_transaction);
+    app.transactions.newTransaction(_transaction);
   }
 
   bool _balanceTransaction() {
-    double totalCredits = 0;
-    double totalDebits = 0;
+    double total = 0;
 
-    for (int i = 0; i < _transaction.debits.length; ++i) {
-      totalDebits += _transaction.debits[i].amount;
+    for (int i = 0; i < _transaction.splits.length; ++i) {
+      total += _transaction.splits[i].amount;
     }
 
-    for (int i = 0; i < _transaction.credits.length; ++i) {
-      totalCredits += _transaction.credits[i].amount;
-    }
-
-    return (totalCredits - totalDebits) == 0;
+    return total == 0;
   }
 
   @override
   Widget build(BuildContext context) {
     Widget newTransactionForm = Form(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       key: _formKey,
       child: Padding(
         padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
@@ -52,28 +49,24 @@ class _TransactionEntryState extends State<TransactionEntry> {
           children: <Widget>[
             TransactionDateField(
               _dateController,
-              onSaved: (value) => _transaction.date = value,
+              onChanged: (DateTime? value) => setState(() =>
+                  _transaction.date = BuiltTimestampBuilder()..date = value),
             ),
-            TransactionDetailsField(
-              onSaved: (value) => _transaction.details = value,
-            ),
+            // TransactionDetailsField(
+            //   onChanged: (String? value) =>
+            //       setState(() => _transaction.details = value),
+            // ),
             PayeePayerFormField(
-              onSaved: (value) => _transaction.payer = value,
+              onChanged: (value) => setState(() => _transaction.payer = value),
             ),
             TransactionSplitField(
-              title: "Credits",
-              color: Colors.red,
-              onSaved: (split) => _transaction.credits.add(split),
-            ),
-            TransactionSplitField(
-              title: "Debits",
+              title: "Splits",
               color: Colors.black,
-              onSaved: (split) => _transaction.debits.add(split),
+              onChanged: (value) => _transaction.splits = value,
             ),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
                   if (_balanceTransaction()) {
                     _addTransaction();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -89,8 +82,7 @@ class _TransactionEntryState extends State<TransactionEntry> {
                       ),
                     );
                     setState(() {
-                      _transaction.credits.clear();
-                      _transaction.debits.clear();
+                      _transaction.splits.clear();
                     });
                   }
                 }

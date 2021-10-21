@@ -20,8 +20,8 @@ class _AppState extends State<MyApp> {
     await Firebase.initializeApp();
     preferences = await SharedPreferences.getInstance();
     try {
-      app.initialize();
-    } on UnauthenticatedError catch (e) {
+      await app.initialize();
+    } on UnauthenticatedError {
       return false;
     }
     return true;
@@ -33,7 +33,9 @@ class _AppState extends State<MyApp> {
       future: _setUpApp(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print("App initialization error:" + snapshot.error.toString());
+          Center(
+              child: Text(
+                  "App initialization error:" + snapshot.error.toString()));
         } else if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           return MaterialApp(

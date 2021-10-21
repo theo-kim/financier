@@ -4,7 +4,7 @@ import 'package:financier/src/components/login-button.dart';
 import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/transactions.dart';
-import 'package:financier/src/operations/users.dart';
+import 'package:financier/src/operations/auth.dart';
 import 'package:financier/src/views/pages/registration.dart';
 import 'package:financier/src/views/primary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 LoginButton(
                   onPressed: () {
-                    UserActions.manager.signInWithGoogle().then((u) {
+                    app.authManager.signInWithGoogle().then((u) {
                       if (u == null) throw "Null user";
                       app.initialize();
                       Navigator.of(context).push(

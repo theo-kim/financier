@@ -2,8 +2,9 @@ import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:flutter/material.dart';
 
 class PayeePayerFormField extends StandardFormField {
-  PayeePayerFormField({bool required = true, required OnSavedFunction onSaved})
-      : super(required, onSaved);
+  PayeePayerFormField(
+      {bool required = true, required Function(String?) onChanged})
+      : super(required, onChanged);
 
   Widget build(BuildContext context) {
     return TextFormField(
@@ -13,9 +14,7 @@ class PayeePayerFormField extends StandardFormField {
         }
         return null;
       },
-      onSaved: (value) {
-        this.onSaved(value);
-      },
+      onChanged: this.onChanged,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: "Payer/Payee",

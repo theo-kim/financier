@@ -4,6 +4,7 @@ import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/converters.dart';
 import 'package:financier/src/operations/datasource.dart';
 import 'package:financier/src/operations/transactions.dart';
+import 'package:financier/src/operations/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 enum OperationsMode {
@@ -40,6 +41,8 @@ class _MasterOperations {
 
   late final AccountActions accounts;
   late final TransactionActions transactions;
+
+  final AuthAction authManager = AuthAction();
 
   Future<void> initialize() async {
     if (mode == OperationsMode.Cloud) {

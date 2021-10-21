@@ -25,6 +25,7 @@ final Serializers builtTimestampSerializers = _$builtTimestampSerializers;
   BuiltUser,
   Transaction,
   TransactionSplit,
+  TransactionSplitType,
   Report,
 ])
 final Serializers serializers =

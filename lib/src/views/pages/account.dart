@@ -2,7 +2,6 @@ import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/models/account.dart';
-import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/master.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -339,7 +338,6 @@ class NewAccountForm extends StatelessWidget {
 
   void _submitAccount(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
       if (_parentAccount != null && _parentAccount!.type != _account.type) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -365,25 +363,25 @@ class NewAccountForm extends StatelessWidget {
                   AccountPropertyField(
                     name: "Account Name",
                     errorMessage: "Account name is required",
-                    onSaved: (String? value) => _account.name = value!,
+                    onChanged: (String? value) => _account.name = value!,
                   ),
                   AccountPropertyField(
                     name: "Account Memo",
                     required: false,
                     errorMessage: "",
-                    onSaved: (String? value) => _account.memo = value,
+                    onChanged: (String? value) => _account.memo = value,
                   ),
                   CurrencyField(
                     errorMessage: '',
                     required: false,
                     label: 'Starting Balance',
-                    onSaved: (double amount) {
+                    onChanged: (double amount) {
                       _account.startingBalance = amount;
                     },
                   ),
                   AccountDropdownField(
                     label: "Parent Account",
-                    onSaved: _saveParentAccount,
+                    onChanged: _saveParentAccount,
                     errorMessage: "",
                     required: false,
                   ),
@@ -443,9 +441,9 @@ class AccountPropertyField extends StandardFormField {
       {required this.name,
       required this.errorMessage,
       this.validator,
-      required OnSavedFunction onSaved,
+      required Function(String?) onChanged,
       bool required = true})
-      : super(required, onSaved);
+      : super(required, onChanged);
 
   final String name;
   final String errorMessage;
@@ -461,7 +459,7 @@ class AccountPropertyField extends StandardFormField {
         }
         return null;
       },
-      onSaved: this.onSaved,
+      onChanged: this.onChanged,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: this.name,

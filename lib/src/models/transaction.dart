@@ -35,11 +35,25 @@ abstract class Transaction implements Built<Transaction, TransactionBuilder> {
   static Serializer<Transaction> get serializer => _$transactionSerializer;
 }
 
+class TransactionSplitType extends EnumClass {
+  static const TransactionSplitType debit = _$debit;
+  static const TransactionSplitType credit = _$credit;
+
+  const TransactionSplitType._(String name) : super(name);
+
+  static BuiltSet<TransactionSplitType> get values => _$valuesSplit;
+  static TransactionSplitType valueOf(String name) => _$valueOfSplit(name);
+
+  static Serializer<TransactionSplitType> get serializer =>
+      _$transactionSplitTypeSerializer;
+}
+
 abstract class TransactionSplit
     implements Built<TransactionSplit, TransactionSplitBuilder> {
   double get amount;
   String get account;
   String get details;
+  TransactionSplitType get type;
 
   TransactionSplit._();
 
