@@ -19,6 +19,8 @@ class _AppState extends State<MyApp> {
       await app.initialize();
     } on UnauthenticatedError {
       return false;
+    } on NonexistantRecordError {
+      return false;
     }
     return true;
   }
@@ -36,6 +38,7 @@ class _AppState extends State<MyApp> {
               theme: ThemeData(
                 primarySwatch: Colors.red,
               ),
+              debugShowCheckedModeBanner: false,
               home: Center(
                   child: Text(
                 "App initialization error:" + snapshot.error.toString(),
@@ -48,6 +51,7 @@ class _AppState extends State<MyApp> {
             theme: ThemeData(
               primarySwatch: Colors.yellow,
             ),
+            debugShowCheckedModeBanner: false,
             home: snapshot.data! ? PrimaryStructure("/") : LoginPage(),
           );
         }
@@ -56,6 +60,7 @@ class _AppState extends State<MyApp> {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
+          debugShowCheckedModeBanner: false,
           home: Center(
             child: CircularProgressIndicator(),
           ),

@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:built_collection/built_collection.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';

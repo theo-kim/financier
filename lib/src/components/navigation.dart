@@ -1,4 +1,4 @@
-import 'dart:html';
+// import 'dart:html';
 import 'dart:ui' as ui;
 
 import 'package:financier/src/views/pages/login.dart';
@@ -74,11 +74,13 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       "Transactions": "/transactions",
     };
 
-    ui.platformViewRegistry.registerViewFactory(
-        'profile-img',
-        (int viewId) => ImageElement()
-          ..src = FirebaseAuth.instance.currentUser!.photoURL!
-          ..referrerPolicy = "no-referrer");
+    // if (kIsWeb) {
+    //   ui.platformViewRegistry.registerViewFactory(
+    //       'profile-img',
+    //       (int viewId) => ImageElement()
+    //         ..src = FirebaseAuth.instance.currentUser!.photoURL!
+    //         ..referrerPolicy = "no-referrer");
+    // }
 
     String displayName = FirebaseAuth.instance.currentUser!.displayName ??
         FirebaseAuth.instance.currentUser!.email!;
