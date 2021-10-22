@@ -99,10 +99,9 @@ class _LoginPageState extends State<LoginPage> {
                           builder: (context) => PrimaryStructure("/"),
                         ),
                       );
-
                       // return AccountActions.manager.getAllAccounts();
                     }).catchError((err) {
-                      print("Login cancelled");
+                      print("Login cancelled: " + err.toString());
                     });
                   },
                   icon: FaIcon(

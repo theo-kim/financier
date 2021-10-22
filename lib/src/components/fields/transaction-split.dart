@@ -68,25 +68,48 @@ class _TransactionSplitFieldState extends State<TransactionSplitField> {
                           fontSize: 16.0,
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _splits.add(TransactionSplitBuilder());
-                          });
-                        },
-                        icon: Icon(
-                          Icons.add,
-                          size: 16.0,
+                      Row(children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _splits.add(TransactionSplitBuilder()
+                                ..type = TransactionSplitType.credit);
+                            });
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            size: 16.0,
+                          ),
+                          label: Text("Credit"),
                         ),
-                        label: Text("Add " + widget.title),
-                      )
+                        Padding(
+                          padding: EdgeInsets.only(left: 5.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _splits.add(TransactionSplitBuilder()
+                                  ..type = TransactionSplitType.debit);
+                              });
+                            },
+                            icon: Icon(
+                              Icons.add,
+                              size: 16.0,
+                            ),
+                            label: Text("Debit"),
+                          ),
+                        ),
+                      ]),
                     ],
                   )
                 ] +
                 [for (int i = 0; i < _splits.length; ++i) i]
                     .map<SplitEntry>((i) => SplitEntry(
-                          onChanged: (e) => setState(() => _splits[i] = e),
+                          onChanged: (e) => setState(() {
+                            _splits[i] = e;
+                            _commitChange();
+                          }),
                           onRemove: () => _removeEntry(i),
+                          type: _splits[i].type!,
                         ))
                     .toList()),
       ),
@@ -95,19 +118,29 @@ class _TransactionSplitFieldState extends State<TransactionSplitField> {
 }
 
 class SplitEntry extends StatefulWidget {
-  SplitEntry({Key? key, required this.onChanged, required this.onRemove})
-      : super(key: key);
+  SplitEntry({
+    Key? key,
+    required this.onChanged,
+    required this.onRemove,
+    required this.type,
+  }) : super(key: key);
 
   final Function(TransactionSplitBuilder) onChanged;
   final Function() onRemove;
+  final TransactionSplitType type;
 
   @override
   _SplitEntryState createState() => _SplitEntryState();
 }
 
 class _SplitEntryState extends State<SplitEntry> {
-  TransactionSplitBuilder _split = TransactionSplitBuilder()
-    ..type = TransactionSplitType.credit;
+  TransactionSplitBuilder _split = TransactionSplitBuilder();
+
+  @override
+  void initState() {
+    _split.type = widget.type;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +158,9 @@ class _SplitEntryState extends State<SplitEntry> {
                   onChanged: (double amount) {
                     widget.onChanged(_split..amount = amount);
                   },
+                  color: _split.type == TransactionSplitType.credit
+                      ? Colors.red
+                      : Colors.black,
                   errorMessage:
                       'You need to specify a value for this transaction',
                 ),
@@ -158,46 +194,6 @@ class _SplitEntryState extends State<SplitEntry> {
               ),
             ],
           ),
-          // Row(
-          //   children: <Widget>[
-          //     Flexible(
-          //       flex: 4,
-          //       child: Row(
-          //         children: [
-          //           Radio<TransactionSplitType>(
-          //             value: TransactionSplitType.debit,
-          //             groupValue: _type,
-          //             onChanged: (value) => setState(() => _type = value),
-          //           ),
-          //           Text("Debit")
-          //         ],
-          //       ),
-          //     ),
-          //     Spacer(flex: 1),
-          //     Flexible(
-          //       flex: 7,
-          //       child: AccountDropdownField(
-          //         label: "Account",
-          //         onSaved: (Account? account) {
-          //           _account = account!;
-          //           _saveState();
-          //         },
-          //         errorMessage:
-          //             "You must assign an account to this transaction",
-          //       ),
-          //     ),
-          //     Flexible(
-          //       flex: 1,
-          //       child: IconButton(
-          //         onPressed: () => widget.onRemove(widget),
-          //         icon: Icon(
-          //           Icons.remove_circle,
-          //           size: 16.0,
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );

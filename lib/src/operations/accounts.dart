@@ -53,6 +53,7 @@ class AccountActions {
   Future<Account> newAccount(AccountBuilder account) async {
     Account a = account.build();
     data.accounts[a.id] = a;
+    _cache!.add(a);
     return a;
   }
 
@@ -66,14 +67,14 @@ class AccountActions {
   }
 
   Account getCachedAccount(Account a) {
-    if (_cache == null) throw Exception("Cache uninitialized");
+    if (_cache == null) throw "Cache uninitialized";
     return _cache!
         .firstWhere((element) => element == a, orElse: () => unknownAccount);
   }
 
   Account getCachedAccountByReference(String ref) {
     if (_cache == null) throw Exception("Cache uninitialized");
-    Account found = _cache!.firstWhere((element) => element.name == ref,
+    Account found = _cache!.firstWhere((element) => element.id == ref,
         orElse: () => unknownAccount);
     return found;
   }
@@ -105,15 +106,17 @@ class AccountActions {
   }
 
   String generateAccountPath(Account a) {
-    if (a.parent == null || a.type == AccountType.none)
+    if (a.type == AccountType.none)
       throw "Cannot generate path for nonexistent account";
     if (_cache!.contains(a) == false)
       throw "Cannot perform operations for Accounts not yet stored";
+    if (a.parent == null) return "/";
     List<String> buff = <String>[];
-    for (Account csr = a;
-        csr.parent != null;
+    for (Account? csr = getCachedAccountByReference(a.parent!);
+        csr != null;
         csr = getCachedAccountByReference(csr.parent!)) {
       buff.insert(0, csr.name);
+      if (csr.parent == null) break;
     }
     return buff.join("/") + "/";
   }
@@ -130,7 +133,7 @@ class AccountActions {
       final Account p = pOld.rebuild((b) {
         b.children.remove(a.id);
       });
-      data.accounts[p.name] = p;
+      data.accounts[p.id] = p;
       _cache!.replace(pOld, p);
 
       // If there are children, make them orphans

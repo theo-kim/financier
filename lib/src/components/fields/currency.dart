@@ -5,12 +5,14 @@ class CurrencyField extends StatelessWidget {
       {required this.onChanged,
       this.required = true,
       required this.errorMessage,
-      required this.label});
+      required this.label,
+      this.color = Colors.grey});
 
   final void Function(double amount) onChanged;
   final bool required;
   final String errorMessage;
   final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +27,13 @@ class CurrencyField extends StatelessWidget {
         }
         return null;
       },
+      style: TextStyle(color: color),
       onChanged: (String? value) {
         double v;
         if (value == null || value.length == 0)
           v = 0.0;
         else {
-          v = double.parse(value);
+          v = double.tryParse(value) ?? 0;
         }
         this.onChanged(v);
       },
@@ -38,10 +41,10 @@ class CurrencyField extends StatelessWidget {
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: this.label,
-        labelStyle: TextStyle(fontSize: 16.0),
+        labelStyle: TextStyle(fontSize: 16.0, color: this.color),
         prefixIcon: Icon(
           Icons.attach_money,
-          color: Colors.black,
+          color: this.color,
           size: 16.0,
         ),
         contentPadding: EdgeInsets.all(10.0),

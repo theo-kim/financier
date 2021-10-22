@@ -22,14 +22,14 @@ class NonexistantRecordError implements Exception {
   String toString() => "The requested record is non-existant";
 }
 
-class _MasterOperations {
-  _MasterOperations(this.mode, {required this.db, this.auth});
+class MasterOperations {
+  MasterOperations(this.mode, {required this.db, this.auth});
 
-  _MasterOperations.cloud()
+  MasterOperations.cloud()
       : mode = OperationsMode.Cloud,
         auth = FirebaseAuth.instance;
 
-  _MasterOperations.local()
+  MasterOperations.local()
       : mode = OperationsMode.Local,
         auth = null; // todo convert to a local JSON file
 
@@ -52,6 +52,7 @@ class _MasterOperations {
           source: FirebaseFirestore.instance,
           user: currentUser);
       accounts = AccountActions(db);
+      await accounts.getAllAccounts();
       transactions = TransactionActions(db);
     } else {
       throw UnimplementedError();
@@ -73,4 +74,4 @@ class _MasterOperations {
   }
 }
 
-_MasterOperations app = _MasterOperations.cloud();
+late MasterOperations app = MasterOperations.cloud();

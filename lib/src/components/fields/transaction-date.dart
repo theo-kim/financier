@@ -12,6 +12,17 @@ class TransactionDateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    dateController.addListener(() {
+      if (dateController.value.text.length == 0)
+        this.onChanged(null); // TODO: test
+      else {
+        this.onChanged(
+            DateFormatter.getAvailable(preferences.getString("date_formatter"))
+                .unformatDate(dateController.value.text)
+                .toUtc());
+      }
+    });
+
     return TextFormField(
       readOnly: true,
       controller: dateController,
@@ -33,16 +44,6 @@ class TransactionDateField extends StatelessWidget {
         contentPadding: EdgeInsets.all(10.0),
       ),
       initialValue: null,
-      onChanged: (String? value) {
-        if (value == null || value.length == 0)
-          this.onChanged(null); // TODO: test
-        else {
-          this.onChanged(DateFormatter.getAvailable(
-                  preferences.getString("date_formatter"))
-              .unformatDate(value)
-              .toUtc());
-        }
-      },
       onTap: () async {
         final DateTime? date = await showDatePicker(
           context: context,

@@ -70,6 +70,12 @@ class DataSource {
         Converters.generic<Account>(
             remote.collection("userdata").doc(user.uid).collection("accounts")),
         type);
+    transactions = Data<Built.Transaction>(
+        Converters.generic<Built.Transaction>(remote
+            .collection("userdata")
+            .doc(user.uid)
+            .collection("transactions")),
+        type);
   }
 
   final DataSourceType type;

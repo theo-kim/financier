@@ -1,11 +1,7 @@
-import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/preferences.dart';
-import 'package:financier/src/operations/transactions.dart';
-import 'package:financier/src/operations/users.dart';
 import 'package:financier/src/views/pages/login.dart';
 import 'package:financier/src/views/primary.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,9 +29,18 @@ class _AppState extends State<MyApp> {
       future: _setUpApp(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          Center(
-              child: Text(
-                  "App initialization error:" + snapshot.error.toString()));
+          print(snapshot.error.toString());
+          print(snapshot.stackTrace);
+          return MaterialApp(
+              title: 'Finacier',
+              theme: ThemeData(
+                primarySwatch: Colors.red,
+              ),
+              home: Center(
+                  child: Text(
+                "App initialization error:" + snapshot.error.toString(),
+                style: TextStyle(fontSize: 20),
+              )));
         } else if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           return MaterialApp(

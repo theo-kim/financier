@@ -52,7 +52,7 @@ abstract class TransactionSplit
     implements Built<TransactionSplit, TransactionSplitBuilder> {
   double get amount;
   String get account;
-  String get details;
+  String? get details;
   TransactionSplitType get type;
 
   TransactionSplit._();

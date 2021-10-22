@@ -1,4 +1,5 @@
 import 'package:financier/src/components/transaction-entry-form.dart';
+import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/master.dart';
@@ -61,6 +62,7 @@ class TransactionPageState extends State<TransactionPage> {
         future: app.transactions.getAllTransactions(),
         builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
           if (snapshot.hasError) {
+            print(snapshot.stackTrace);
             return _errorContainer(
                 "Error loading transactions: " + snapshot.error.toString());
           } else if (!snapshot.hasData || snapshot.data!.length == 0) {
@@ -174,6 +176,44 @@ class _TransactionListState extends State<TransactionList> {
   }
 }
 
+class TransactionRow extends StatelessWidget {
+  TransactionRow(this.transaction, this.split)
+      : _formatter =
+            DateFormatter.getAvailable(preferences.getString("date_formatter"));
+
+  final Transaction transaction;
+  final TransactionSplit split;
+  final DateFormatter _formatter;
+
+  Widget _cell(Text contents, int flex) => Expanded(
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: contents,
+        ),
+        flex: flex,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      _cell(Text(transaction.type.toString().replaceAll("_", " ")), 1),
+      _cell(Text(_formatter.formatDate(transaction.date.date)), 1),
+      _cell(Text(app.accounts.getCachedAccountByReference(split.account).name),
+          2),
+      _cell(
+          Text(
+            "\$" + split.amount.toStringAsFixed(2),
+            style: TextStyle(
+              color: split.type == TransactionSplitType.credit
+                  ? Colors.red
+                  : Colors.black,
+            ),
+          ),
+          1),
+    ]);
+  }
+}
+
 class TransactionListing extends StatelessWidget {
   TransactionListing({required this.transaction});
 
@@ -181,39 +221,13 @@ class TransactionListing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? formatterName = preferences.getString("date_formatter");
-    DateFormatter formatter = DateFormatter.getAvailable(formatterName);
-
     return Material(
       child: ListTile(
         onTap: () {},
         contentPadding: EdgeInsets.zero,
         title: Column(
           children: (transaction.splits)
-              .map<Widget>(
-                (e) => Row(
-                  children: <String, int>{
-                    (transaction.type != null
-                        ? transaction.type.toString()
-                        : "Transfer"): 1,
-                    formatter.formatDate(transaction.date.date): 1,
-                    app.accounts.getCachedAccountByReference(e.account).name: 2,
-                    e.amount.toString(): 1,
-                  }
-                      .entries
-                      .map<Widget>(
-                        (e) => Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child:
-                                Text(e.key, style: TextStyle(fontSize: 14.0)),
-                          ),
-                          flex: e.value,
-                        ),
-                      )
-                      .toList(),
-                ),
-              )
+              .map<Widget>((e) => TransactionRow(transaction, e))
               .toList(),
         ),
       ),

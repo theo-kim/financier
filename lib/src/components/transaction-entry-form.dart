@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financier/src/components/fields/transaction-type-dropdown.dart';
 import 'package:financier/src/models/timestamp.dart';
 import 'package:financier/src/operations/master.dart';
-import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
 
 import 'fields/payee-payer.dart';
 import 'fields/transaction-date.dart';
-import 'fields/transaction-details.dart';
 import 'fields/transaction-split.dart';
 import '../models/transaction.dart' as Trans;
 
@@ -32,7 +30,10 @@ class _TransactionEntryState extends State<TransactionEntry> {
     double total = 0;
 
     for (int i = 0; i < _transaction.splits.length; ++i) {
-      total += _transaction.splits[i].amount;
+      total += _transaction.splits[i].amount *
+          (_transaction.splits[i].type == Trans.TransactionSplitType.credit
+              ? -1
+              : 1);
     }
 
     return total == 0;
@@ -49,20 +50,25 @@ class _TransactionEntryState extends State<TransactionEntry> {
           children: <Widget>[
             TransactionDateField(
               _dateController,
-              onChanged: (DateTime? value) => setState(() =>
-                  _transaction.date = BuiltTimestampBuilder()..date = value),
+              onChanged: (DateTime? value) {
+                setState(() =>
+                    _transaction.date = BuiltTimestampBuilder()..date = value);
+              },
             ),
-            // TransactionDetailsField(
-            //   onChanged: (String? value) =>
-            //       setState(() => _transaction.details = value),
-            // ),
+            TransactionTypeField(
+              onChanged: (t) => setState(() => _transaction.type = t),
+              errorMessage: "You must specify a transaction type",
+              label: "Transaction Type",
+            ),
             PayeePayerFormField(
               onChanged: (value) => setState(() => _transaction.payer = value),
             ),
             TransactionSplitField(
               title: "Splits",
               color: Colors.black,
-              onChanged: (value) => _transaction.splits = value,
+              onChanged: (value) {
+                _transaction.splits = value;
+              },
             ),
             ElevatedButton(
               onPressed: () {

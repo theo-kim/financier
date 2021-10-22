@@ -322,18 +322,26 @@ class AccountDetails extends StatelessWidget {
   }
 }
 
-class NewAccountForm extends StatelessWidget {
+class NewAccountForm extends StatefulWidget {
   NewAccountForm({required this.onSubmit});
 
   final void Function(AccountBuilder newAccount, Account? parent) onSubmit;
 
+  _NewAccountState createState() => _NewAccountState();
+}
+
+class _NewAccountState extends State<NewAccountForm> {
   final _formKey = GlobalKey<FormState>();
-  final _account = AccountBuilder();
-  late Account? _parentAccount;
+  final _account = AccountBuilder()
+    ..startingBalance = 0
+    ..parent = null;
+  Account? _parentAccount;
 
   void _saveParentAccount(Account? a) {
-    _parentAccount = a;
-    if (a != null) _account.type = a.type;
+    setState(() {
+      _parentAccount = a;
+      if (a != null) _account.type = a.type;
+    });
   }
 
   void _submitAccount(BuildContext context) {
@@ -346,8 +354,9 @@ class NewAccountForm extends StatelessWidget {
             backgroundColor: Colors.red,
           ),
         );
+        return;
       }
-      onSubmit(_account, _parentAccount);
+      widget.onSubmit(_account, _parentAccount);
     }
   }
 
@@ -363,21 +372,22 @@ class NewAccountForm extends StatelessWidget {
                   AccountPropertyField(
                     name: "Account Name",
                     errorMessage: "Account name is required",
-                    onChanged: (String? value) => _account.name = value!,
+                    onChanged: (String? value) =>
+                        setState(() => _account.name = value!),
                   ),
                   AccountPropertyField(
                     name: "Account Memo",
                     required: false,
                     errorMessage: "",
-                    onChanged: (String? value) => _account.memo = value,
+                    onChanged: (String? value) =>
+                        setState(() => _account.memo = value),
                   ),
                   CurrencyField(
                     errorMessage: '',
                     required: false,
                     label: 'Starting Balance',
-                    onChanged: (double amount) {
-                      _account.startingBalance = amount;
-                    },
+                    onChanged: (double amount) =>
+                        setState(() => _account.startingBalance = amount),
                   ),
                   AccountDropdownField(
                     label: "Parent Account",
@@ -386,10 +396,10 @@ class NewAccountForm extends StatelessWidget {
                     required: false,
                   ),
                   DropdownButtonFormField(
-                    onChanged: (a) {},
+                    onChanged: (AccountType? type) =>
+                        setState(() => _account.type = type),
                     validator: (t) =>
                         t == null ? "You must specify an account type" : null,
-                    onSaved: (AccountType? type) => _account.type = type,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Account Type",

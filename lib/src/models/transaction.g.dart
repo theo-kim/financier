@@ -196,14 +196,18 @@ class _$TransactionSplitSerializer
       'account',
       serializers.serialize(object.account,
           specifiedType: const FullType(String)),
-      'details',
-      serializers.serialize(object.details,
-          specifiedType: const FullType(String)),
       'type',
       serializers.serialize(object.type,
           specifiedType: const FullType(TransactionSplitType)),
     ];
-
+    Object? value;
+    value = object.details;
+    if (value != null) {
+      result
+        ..add('details')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     return result;
   }
 
@@ -229,7 +233,7 @@ class _$TransactionSplitSerializer
           break;
         case 'details':
           result.details = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'type':
           result.type = serializers.deserialize(value,
@@ -400,7 +404,7 @@ class _$TransactionSplit extends TransactionSplit {
   @override
   final String account;
   @override
-  final String details;
+  final String? details;
   @override
   final TransactionSplitType type;
 
@@ -411,14 +415,12 @@ class _$TransactionSplit extends TransactionSplit {
   _$TransactionSplit._(
       {required this.amount,
       required this.account,
-      required this.details,
+      this.details,
       required this.type})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(amount, 'TransactionSplit', 'amount');
     BuiltValueNullFieldError.checkNotNull(
         account, 'TransactionSplit', 'account');
-    BuiltValueNullFieldError.checkNotNull(
-        details, 'TransactionSplit', 'details');
     BuiltValueNullFieldError.checkNotNull(type, 'TransactionSplit', 'type');
   }
 
@@ -511,8 +513,7 @@ class TransactionSplitBuilder
                 amount, 'TransactionSplit', 'amount'),
             account: BuiltValueNullFieldError.checkNotNull(
                 account, 'TransactionSplit', 'account'),
-            details: BuiltValueNullFieldError.checkNotNull(
-                details, 'TransactionSplit', 'details'),
+            details: details,
             type: BuiltValueNullFieldError.checkNotNull(
                 type, 'TransactionSplit', 'type'));
     replace(_$result);
