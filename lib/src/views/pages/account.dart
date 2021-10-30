@@ -1,7 +1,10 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
+import 'package:financier/src/components/fields/tag-adder.dart';
 import 'package:financier/src/models/account.dart';
+import 'package:financier/src/models/accounttags.dart';
 import 'package:financier/src/operations/master.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,8 +47,7 @@ class _AccountsPageState extends State<AccountsPage> {
   void _saveAccount(
       AccountBuilder newAccount, Account? parent, BuildContext ctx) async {
     try {
-      Account child = await app.accounts.newAccount(newAccount);
-      await app.accounts.addChildAccount(parent, child);
+      await app.accounts.newAccount(newAccount);
       Navigator.of(ctx).pop();
       _accountList.currentState!.reload();
     } catch (e) {
@@ -269,7 +271,9 @@ class AccountDetails extends StatelessWidget {
                         bool? confirm = await showDialog<bool>(
                           context: this.context,
                           builder: (ctx) => AlertDialog(
-                              content: (account.children.length > 0)
+                              content: (app.accounts.computeAccountChildren(
+                                          this.account) >
+                                      0)
                                   ? Text(
                                       "Are you sure you want to delete this account? This account has children, they will be made children to its parent account.")
                                   : Text(
@@ -305,6 +309,24 @@ class AccountDetails extends StatelessWidget {
             ),
           ),
           Text("Account type: " + account.type.toString().capitalize()),
+          Row(
+              children: <Widget>[Text("Account Tags: ")] +
+                  account.tags
+                      .map<Widget>(
+                        (t) => Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color(0xf0f0f0ff),
+                          ),
+                          margin: EdgeInsets.only(right: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 3.0),
+                          child: Text(
+                            t.toString().replaceAll("_", " "),
+                          ),
+                        ),
+                      )
+                      .toList()),
           if (account.memo != null && account.memo!.length > 1)
             Text("Account memo: " + account.memo!),
           if (path.length > 1)
@@ -339,8 +361,12 @@ class _NewAccountState extends State<NewAccountForm> {
 
   void _saveParentAccount(Account? a) {
     setState(() {
-      _parentAccount = a;
-      if (a != null) _account.type = a.type;
+      if (a != null) {
+        _account.parent = a.id;
+        _account.type = a.type;
+      } else {
+        _account.parent = null;
+      }
     });
   }
 
@@ -395,9 +421,10 @@ class _NewAccountState extends State<NewAccountForm> {
                     errorMessage: "",
                     required: false,
                   ),
-                  DropdownButtonFormField(
+                  DropdownButtonFormField<AccountType>(
                     onChanged: (AccountType? type) =>
                         setState(() => _account.type = type),
+                    value: _account.type,
                     validator: (t) =>
                         t == null ? "You must specify an account type" : null,
                     decoration: InputDecoration(
@@ -418,6 +445,13 @@ class _NewAccountState extends State<NewAccountForm> {
                                 child: Text(e.toString().capitalize())))
                         .toList(),
                   ),
+                  TagAdderField(
+                    filter: _account.type,
+                    onChanged: (List<AccountTag> tags) {
+                      _account.tags =
+                          BuiltList<AccountTag>.from(tags).toBuilder();
+                    },
+                  ),
                 ]
                     .map<Widget>(
                         (e) => Padding(padding: EdgeInsets.all(10.0), child: e))
@@ -434,7 +468,6 @@ class _NewAccountState extends State<NewAccountForm> {
                       ),
                       child: Text(
                         "Create Account",
-                        style: TextStyle(fontSize: 18.0),
                       ),
                     ),
                   )

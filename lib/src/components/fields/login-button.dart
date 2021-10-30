@@ -37,6 +37,7 @@ class LoginButton extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(right: 10.0),

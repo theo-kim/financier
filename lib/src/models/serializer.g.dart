@@ -24,17 +24,14 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(TransactionSplitType.serializer)
       ..add(TransactionType.serializer)
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(Report)]),
-          () => new ListBuilder<Report>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => new ListBuilder<String>())
-      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(AccountTag)]),
           () => new ListBuilder<AccountTag>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(AccountTransaction)]),
           () => new ListBuilder<AccountTransaction>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Report)]),
+          () => new ListBuilder<Report>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TransactionSplit)]),
           () => new ListBuilder<TransactionSplit>()))

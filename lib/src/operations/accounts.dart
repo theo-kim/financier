@@ -57,7 +57,9 @@ class AccountActions {
     return a;
   }
 
-  Future<List<Account>> newAccountList(List<AccountBuilder> account) async {
+  Future<List<Account>> newAccountList(List<AccountBuilder> account,
+      {bool replace = false}) async {
+    if (replace && _cache != null) _cache!.clear();
     List<Account> output = [];
     for (AccountBuilder a in account) {
       output.add(await newAccount(a));
@@ -79,31 +81,41 @@ class AccountActions {
     return found;
   }
 
-  Future<Account> addChildAccount(Account? parent, Account child) async {
-    // if cache isn't loaded, load it
-    if (_cache == null) await getAllAccounts();
-    // Child must exist in the database first
-    if (_cache!.contains(child) == false)
-      throw Exception("Trying to update a child which does not yet exist");
-    String? parentId;
-    if (parent != null) {
-      // Parent must exist in the database first
-      if (_cache!.contains(parent) == false)
-        throw Exception("Trying to update a parent which does not yet exist");
-      // Get the parent from the cache and update it with the reference to the child
-      Account p = parent.rebuild((b) => b.children.add(child.id));
-      // update firestore and the cache
-      data.accounts[p.id] = p;
-      _cache!.replace(parent, p);
-      parentId = p.id;
+  int computeAccountChildren(Account a) {
+    if (_cache == null) throw Exception("Cache uninitialized");
+    if (!_cache!.contains(a)) throw Exception("Account does not exist");
+    int total = 0;
+    for (Account _a in _cache!) {
+      if (_a.parent == a.id) total++;
     }
-    // Get the child from the cache and update it with the reference to the child
-    Account c = child.rebuild((b) => b..parent = parentId);
-    // update firestore
-    data.accounts[c.id] = c;
-    _cache!.replace(child, c);
-    return child;
+    return total;
   }
+
+  // Future<Account> addChildAccount(Account? parent, Account child) async {
+  //   // if cache isn't loaded, load it
+  //   if (_cache == null) await getAllAccounts();
+  //   // Child must exist in the database first
+  //   if (_cache!.contains(child) == false)
+  //     throw Exception("Trying to update a child which does not yet exist");
+  //   String? parentId;
+  //   if (parent != null) {
+  //     // Parent must exist in the database first
+  //     if (_cache!.contains(parent) == false)
+  //       throw Exception("Trying to update a parent which does not yet exist");
+  //     // Get the parent from the cache and update it with the reference to the child
+  //     Account p = parent.rebuild((b) => b.children.add(child.id));
+  //     // update firestore and the cache
+  //     data.accounts[p.id] = p;
+  //     _cache!.replace(parent, p);
+  //     parentId = p.id;
+  //   }
+  //   // Get the child from the cache and update it with the reference to the child
+  //   Account c = child.rebuild((b) => b..parent = parentId);
+  //   // update firestore
+  //   data.accounts[c.id] = c;
+  //   _cache!.replace(child, c);
+  //   return child;
+  // }
 
   String generateAccountPath(Account a) {
     if (a.type == AccountType.none)
@@ -126,28 +138,18 @@ class AccountActions {
     if (_cache!.contains(a) == false)
       throw "Cannot delete account that does not exist";
     if (a.type == AccountType.none) throw "Cannot delete an abstract account";
+    // Don't need this cause no children reference
     // Remove this account from its parent's children
-    if (a.parent != null) {
-      // update firestore
-      final Account pOld = getCachedAccountByReference(a.parent!);
-      final Account p = pOld.rebuild((b) {
-        b.children.remove(a.id);
-      });
-      data.accounts[p.id] = p;
-      _cache!.replace(pOld, p);
-
-      // If there are children, make them orphans
-      if (a.children.length > 0) {
-        for (String child in a.children) {
-          await addChildAccount(p, getCachedAccountByReference(child));
-        }
-      }
-    } else {
-      // if this has no parent, just make the children have no parents and move on
-      if (a.children.length > 0) {
-        for (String child in a.children) {
-          await addChildAccount(null, getCachedAccountByReference(child));
-        }
+    // Find all the children of the parent
+    for (int i = 0; i < _cache!.length; ++i) {
+      Account child = _cache![i];
+      // if you find a child with the correct parent
+      if (child.parent == a.id) {
+        // replace child parent with the deleted account's parent
+        //    in cache
+        _cache![i] = child.rebuild((b) => b..parent = a.parent);
+        //    in cloud
+        data.accounts[_cache![i].id] = _cache![i];
       }
     }
 

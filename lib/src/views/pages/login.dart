@@ -1,16 +1,11 @@
 import 'dart:math';
 
-import 'package:financier/src/components/login-button.dart';
-import 'package:financier/src/operations/accounts.dart';
+import 'package:financier/src/components/fields/login-button.dart';
 import 'package:financier/src/operations/master.dart';
-import 'package:financier/src/operations/transactions.dart';
-import 'package:financier/src/operations/auth.dart';
 import 'package:financier/src/views/pages/registration.dart';
 import 'package:financier/src/views/primary.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
@@ -25,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal:
-              10 + max((MediaQuery.of(context).size.width - 400) / 2, 0),
+              25 + max((MediaQuery.of(context).size.width - 400) / 2, 0),
         ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

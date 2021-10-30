@@ -135,10 +135,6 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
       'type',
       serializers.serialize(object.type,
           specifiedType: const FullType(AccountType)),
-      'children',
-      serializers.serialize(object.children,
-          specifiedType:
-              const FullType(BuiltList, const [const FullType(String)])),
       'tags',
       serializers.serialize(object.tags,
           specifiedType:
@@ -200,12 +196,6 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
         case 'parent':
           result.parent = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
-          break;
-        case 'children':
-          result.children.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(
-                      BuiltList, const [const FullType(String)]))!
-              as BuiltList<Object?>);
           break;
         case 'tags':
           result.tags.replace(serializers.deserialize(value,
@@ -352,8 +342,6 @@ class _$Account extends Account {
   @override
   final String? parent;
   @override
-  final BuiltList<String> children;
-  @override
   final BuiltList<AccountTag> tags;
   @override
   final BuiltList<AccountTransaction>? transactions;
@@ -367,7 +355,6 @@ class _$Account extends Account {
       required this.startingBalance,
       required this.type,
       this.parent,
-      required this.children,
       required this.tags,
       this.transactions})
       : super._() {
@@ -375,7 +362,6 @@ class _$Account extends Account {
     BuiltValueNullFieldError.checkNotNull(
         startingBalance, 'Account', 'startingBalance');
     BuiltValueNullFieldError.checkNotNull(type, 'Account', 'type');
-    BuiltValueNullFieldError.checkNotNull(children, 'Account', 'children');
     BuiltValueNullFieldError.checkNotNull(tags, 'Account', 'tags');
   }
 
@@ -395,7 +381,6 @@ class _$Account extends Account {
         startingBalance == other.startingBalance &&
         type == other.type &&
         parent == other.parent &&
-        children == other.children &&
         tags == other.tags &&
         transactions == other.transactions;
   }
@@ -406,12 +391,10 @@ class _$Account extends Account {
         $jc(
             $jc(
                 $jc(
-                    $jc(
-                        $jc($jc($jc(0, name.hashCode), memo.hashCode),
-                            startingBalance.hashCode),
-                        type.hashCode),
-                    parent.hashCode),
-                children.hashCode),
+                    $jc($jc($jc(0, name.hashCode), memo.hashCode),
+                        startingBalance.hashCode),
+                    type.hashCode),
+                parent.hashCode),
             tags.hashCode),
         transactions.hashCode));
   }
@@ -424,7 +407,6 @@ class _$Account extends Account {
           ..add('startingBalance', startingBalance)
           ..add('type', type)
           ..add('parent', parent)
-          ..add('children', children)
           ..add('tags', tags)
           ..add('transactions', transactions))
         .toString();
@@ -455,11 +437,6 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
   String? get parent => _$this._parent;
   set parent(String? parent) => _$this._parent = parent;
 
-  ListBuilder<String>? _children;
-  ListBuilder<String> get children =>
-      _$this._children ??= new ListBuilder<String>();
-  set children(ListBuilder<String>? children) => _$this._children = children;
-
   ListBuilder<AccountTag>? _tags;
   ListBuilder<AccountTag> get tags =>
       _$this._tags ??= new ListBuilder<AccountTag>();
@@ -481,7 +458,6 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
       _startingBalance = $v.startingBalance;
       _type = $v.type;
       _parent = $v.parent;
-      _children = $v.children.toBuilder();
       _tags = $v.tags.toBuilder();
       _transactions = $v.transactions?.toBuilder();
       _$v = null;
@@ -514,14 +490,11 @@ class AccountBuilder implements Builder<Account, AccountBuilder> {
               type: BuiltValueNullFieldError.checkNotNull(
                   type, 'Account', 'type'),
               parent: parent,
-              children: children.build(),
               tags: tags.build(),
               transactions: _transactions?.build());
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'children';
-        children.build();
         _$failedField = 'tags';
         tags.build();
         _$failedField = 'transactions';

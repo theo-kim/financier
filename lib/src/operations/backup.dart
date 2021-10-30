@@ -133,19 +133,22 @@ Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
 
     // update parents
     for (Map<String, String> row in backup) {
-      if (referenceMap[row["Parent Account"]!.toLowerCase()] == null) {
+      String parentName = row["Parent Account"]!;
+      if (parentName != "ROOT" &&
+          referenceMap[parentName.toLowerCase()] == null) {
         throw BackupException(
             "Missing account in backup: " + row["Parent Account"]!);
       }
       String? parentRef;
       if (row["Parent Account"]!.toLowerCase() != "root")
         parentRef = referenceMap[row["Parent Account"]!.toLowerCase()];
+      else
+        parentRef = null;
       final AccountBuilder b = AccountBuilder()
         ..name = row["Account Name"]
         ..memo = row["Memo"]
         ..startingBalance = moneyParse(row["Starting Balance"])
         ..parent = parentRef
-        ..children = ListBuilder()
         ..type = AccountType.valueOf(row["Account Type"]!.toLowerCase());
       String selfRef =
           "${b.type!.toString()}-${b.name!.replaceAll(" ", "_").toLowerCase()}";
@@ -153,21 +156,7 @@ Future<List<Account>> syncBackupAccounts(List<Map<String, String>> backup,
       referenceCache[selfRef] = restoredAccounts.last;
     }
 
-    for (Account a in existing) {
-      if (overwrittenAccounts.contains(a.name)) continue;
-      // Remove the children, they will be recomputed later
-
-      restoredAccounts.add(a.toBuilder()..children = ListBuilder());
-      referenceCache[a.id] = restoredAccounts.last;
-    }
-
-    for (AccountBuilder a in restoredAccounts) {
-      if (a.parent != null) {
-        referenceCache[a.parent]!.children.add(a.build().id);
-      }
-    }
-
-    return await app.accounts.newAccountList(restoredAccounts);
+    return await app.accounts.newAccountList(restoredAccounts, replace: true);
   } catch (e) {
     throw BackupException(
         "Cannot restore your backup, potentially a malformed file, error message: " +

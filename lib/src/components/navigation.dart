@@ -5,7 +5,8 @@ import 'package:financier/src/views/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+/* used for network images */
 
 class NavigationDrawer extends StatefulWidget {
   NavigationDrawer(
@@ -116,21 +117,18 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                             Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  kIsWeb
-                                      ? Padding(
-                                          padding: EdgeInsets.only(right: 10),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: HtmlElementView(
-                                              viewType: "profile-img",
-                                            ),
-                                            width: 40.0,
-                                            height: 40.0,
-                                          ))
-                                      : Image.network(FirebaseAuth
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(FirebaseAuth
                                           .instance.currentUser!.photoURL!),
+                                      width: 40.0,
+                                      height: 40.0,
+                                    ),
+                                  ),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,

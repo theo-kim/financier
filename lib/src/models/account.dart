@@ -40,7 +40,6 @@ abstract class Account implements Built<Account, AccountBuilder> {
   double get startingBalance;
   AccountType get type;
   String? get parent;
-  BuiltList<String> get children;
   BuiltList<AccountTag> get tags;
   BuiltList<AccountTransaction>? get transactions;
 
