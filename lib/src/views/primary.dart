@@ -121,9 +121,6 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
       },
       child: DynamicScaffold(
         key: UniqueKey(),
-        appBar: StandardAppBar(
-          title: _title,
-        ),
         drawerBuilder: (bool isHidden) => NavigationDrawer(
           elevated: isHidden,
           activePage: _title,

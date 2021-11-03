@@ -1,3 +1,4 @@
+import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/transaction-entry-form.dart';
 import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/accounts.dart';
@@ -57,73 +58,88 @@ class TransactionPageState extends State<TransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      FutureBuilder(
-        future: app.transactions.getAllTransactions(),
-        builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
-          if (snapshot.hasError) {
-            print(snapshot.stackTrace);
-            return _errorContainer(
-                "Error loading transactions: " + snapshot.error.toString());
-          } else if (!snapshot.hasData || snapshot.data!.length == 0) {
-            return _errorContainer(
-                "Could not find any transactions, try creating one");
-          } else {
-            return FocusableActionDetector(
-              autofocus: true,
-              shortcuts: {
-                newLedgerEntryKeySet: _NewLedgerEntryIntent(),
-              },
-              actions: {
-                _NewLedgerEntryIntent: CallbackAction(
-                  onInvoke: (e) => _showLedgerEntryForm.call(),
+    return Column(
+      children: [
+        StandardAppBar(title: "Transactions"),
+        Expanded(
+          child: Stack(
+            children: [
+              Card(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                elevation: 6,
+                child: FutureBuilder(
+                  future: app.transactions.getAllTransactions(),
+                  builder: (context,
+                      AsyncSnapshot<List<Trans.Transaction>> snapshot) {
+                    if (snapshot.hasError) {
+                      print(snapshot.stackTrace);
+                      return _errorContainer("Error loading transactions: " +
+                          snapshot.error.toString());
+                    } else if (!snapshot.hasData ||
+                        snapshot.data!.length == 0) {
+                      return _errorContainer(
+                          "Could not find any transactions, try creating one");
+                    } else {
+                      return FocusableActionDetector(
+                        autofocus: true,
+                        shortcuts: {
+                          newLedgerEntryKeySet: _NewLedgerEntryIntent(),
+                        },
+                        actions: {
+                          _NewLedgerEntryIntent: CallbackAction(
+                            onInvoke: (e) => _showLedgerEntryForm.call(),
+                          ),
+                        },
+                        child: TransactionList(snapshot.data!),
+                      );
+                    }
+                  },
                 ),
-              },
-              child: TransactionList(snapshot.data!),
-            );
-          }
-        },
-      ),
-      Positioned(
-        bottom: 20.0,
-        right: 20.0,
-        child: SpeedDial(
-          icon: Icons.add,
-          tooltip: "Add Transaction",
-          children: [
-            SpeedDialChild(
-              child: Icon(Icons.credit_card_rounded),
-              label: "Enter Credit Card Charge",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        "Not yet implemented, use \"Manual Ledge Entry\" Option"),
-                  ),
-                );
-              },
-            ),
-            SpeedDialChild(
-              child: Icon(Icons.account_balance),
-              label: "Checkbook Entry",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        "Not yet implemented, use \"Manual Ledge Entry\" Option"),
-                  ),
-                );
-              },
-            ),
-            SpeedDialChild(
-              child: Icon(Icons.book),
-              label: "Manual Ledger Entry",
-              onTap: _showLedgerEntryForm,
-            ),
-          ],
-        ),
-      ),
-    ]);
+              ),
+              Positioned(
+                bottom: 20.0,
+                right: 20.0,
+                child: SpeedDial(
+                  icon: Icons.add,
+                  tooltip: "Add Transaction",
+                  children: [
+                    SpeedDialChild(
+                      child: Icon(Icons.credit_card_rounded),
+                      label: "Enter Credit Card Charge",
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Not yet implemented, use \"Manual Ledge Entry\" Option"),
+                          ),
+                        );
+                      },
+                    ),
+                    SpeedDialChild(
+                      child: Icon(Icons.account_balance),
+                      label: "Checkbook Entry",
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Not yet implemented, use \"Manual Ledge Entry\" Option"),
+                          ),
+                        );
+                      },
+                    ),
+                    SpeedDialChild(
+                      child: Icon(Icons.book),
+                      label: "Manual Ledger Entry",
+                      onTap: _showLedgerEntryForm,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
   }
 }
 
@@ -139,7 +155,7 @@ class _TransactionListState extends State<TransactionList> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: <String, int>{
@@ -161,15 +177,14 @@ class _TransactionListState extends State<TransactionList> {
               )
               .toList(),
         ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: widget.transactions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return TransactionListing(
-                transaction: widget.transactions[index],
-              );
-            },
-          ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.transactions.length,
+          itemBuilder: (BuildContext context, int index) {
+            return TransactionListing(
+              transaction: widget.transactions[index],
+            );
+          },
         ),
       ],
     );

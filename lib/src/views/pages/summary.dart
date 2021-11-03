@@ -1,3 +1,4 @@
+import 'package:financier/src/components/appbar.dart';
 import 'package:flutter/material.dart';
 
 class SummaryPage extends StatefulWidget {
@@ -16,8 +17,13 @@ class _SummaryPageState extends State<SummaryPage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Center(
-      child: Text("hello world!"),
-    );
+    return Column(mainAxisSize: MainAxisSize.max, children: [
+      StandardAppBar(title: "Summary"),
+      Stack(children: [
+        Center(
+          child: Text("hello world!"),
+        )
+      ])
+    ]);
   }
 }

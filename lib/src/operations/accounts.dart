@@ -34,6 +34,18 @@ class AccountActions {
     return accounts;
   }
 
+  Future<List<Account>> getAllRootAccounts() async {
+    if (_cache == null) await getAllAccounts();
+
+    return _cache!.where((a) => a.parent == null).toList();
+  }
+
+  Future<List<Account>> getAccountsByParent(Account parent) async {
+    if (_cache == null) await getAllAccounts();
+
+    return _cache!.where((a) => a.parent == parent.id).toList();
+  }
+
   Future<List<Account>> getAccountsByType(AccountType type) async {
     final result = <Account>[];
 

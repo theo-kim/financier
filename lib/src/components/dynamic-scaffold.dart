@@ -2,15 +2,13 @@ import 'package:financier/src/components/navigation.dart';
 import 'package:flutter/material.dart';
 
 class DynamicScaffold extends StatefulWidget {
-  DynamicScaffold(
-      {required key,
-      required this.appBar,
-      required this.body,
-      required this.drawerBuilder,
-      this.floatingActionButton})
-      : super(key: key);
+  DynamicScaffold({
+    required key,
+    required this.body,
+    required this.drawerBuilder,
+    this.floatingActionButton,
+  }) : super(key: key);
 
-  final PreferredSizeWidget appBar;
   final Widget body;
   final FloatingActionButton? floatingActionButton;
   final NavigationDrawer Function(bool hidden) drawerBuilder;
@@ -30,9 +28,13 @@ class _DynamicScaffoldState extends State<DynamicScaffold> {
     NavigationDrawer drawer = widget.drawerBuilder(hideNavDrawer);
 
     Widget scaffold = Scaffold(
-      drawer: (hideNavDrawer ? drawer : null),
-      body: Column(children: [
-        widget.appBar,
+      backgroundColor: Color(0xfffafafa),
+      drawer: (hideNavDrawer
+          ? Theme(
+              data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+              child: drawer)
+          : null),
+      body: Column(mainAxisSize: MainAxisSize.max, children: [
         Expanded(
           child: widget.body,
         ),

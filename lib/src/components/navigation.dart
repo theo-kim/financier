@@ -30,10 +30,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
   late String _activePage;
 
   Widget _navOption(String name, String route) => Ink(
-        child: Material(
-          color: Colors.transparent,
-          child: Padding(
-            padding: EdgeInsets.all(5.0),
+        child: Padding(
+          padding: EdgeInsets.all(5.0),
+          child: Material(
+            borderRadius: BorderRadius.circular(20.0),
+            color: Color(0xfff0f0f0),
             child: ListTileTheme(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
@@ -87,96 +88,92 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
         FirebaseAuth.instance.currentUser!.email!;
 
     return Drawer(
-      elevation: (widget.elevated ? 16.0 : 0.0),
+      elevation: 0,
       child: Container(
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 245, 245, 245),
-          border: Border(
-            right: BorderSide(
-              width: 1.0,
-              color: Colors.grey,
-            ),
-          ),
-        ),
+        color: Colors.transparent,
         child: Column(children: [
           Expanded(
             child: ListView(
               physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.all(1.0),
+              padding: EdgeInsets.all(10.0),
               children: <Widget>[
-                    DrawerHeader(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5.0,
-                          vertical: 10.0,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Image.network(FirebaseAuth
-                                          .instance.currentUser!.photoURL!),
-                                      width: 40.0,
-                                      height: 40.0,
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    // crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      Text(displayName),
-                                      TextButton(
-                                        onPressed: () {
-                                          FirebaseAuth.instance
-                                              .signOut()
-                                              .then((value) {
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    LoginPage(),
-                                              ),
-                                            );
-                                          });
-                                        },
-                                        child: Text(
-                                          "Logout",
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ]),
-                            Text(
-                              "Pincher",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                      margin: EdgeInsets.zero,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(40.0),
-                            bottomRight: Radius.circular(40.0),
+                    Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: DrawerHeader(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 5.0,
+                            vertical: 10.0,
                           ),
-                          side: BorderSide.none,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 10),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Image.network(FirebaseAuth
+                                            .instance.currentUser!.photoURL!),
+                                        width: 40.0,
+                                        height: 40.0,
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Text(displayName),
+                                        TextButton(
+                                          onPressed: () {
+                                            FirebaseAuth.instance
+                                                .signOut()
+                                                .then((value) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LoginPage(),
+                                                ),
+                                              );
+                                            });
+                                          },
+                                          child: Text(
+                                            "Logout",
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ]),
+                              Text(
+                                "Pincher",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0),
+                              ),
+                            ],
+                          ),
                         ),
-                        color: Theme.of(context).primaryColorLight,
+                        margin: EdgeInsets.zero,
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(40.0),
+                            ),
+                            side: BorderSide.none,
+                          ),
+                          color: Theme.of(context).primaryColorLight,
+                        ),
                       ),
-                    )
+                    ),
                   ] +
                   pages.entries
                       .map<Widget>((e) => _navOption(e.key, e.value))
