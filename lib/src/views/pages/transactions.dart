@@ -1,14 +1,13 @@
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/transaction-entry-form.dart';
 import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/accounts.dart';
 import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/master.dart';
 import 'package:financier/src/operations/preferences.dart';
-import 'package:financier/src/operations/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:tuple/tuple.dart';
 
 import '../../models/transaction.dart' as Trans;
 
@@ -59,41 +58,45 @@ class TransactionPageState extends State<TransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StandardAppBar(title: "Transactions"),
         Expanded(
           child: Stack(
+            fit: StackFit.expand,
             children: [
-              Card(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                elevation: 6,
-                child: FutureBuilder(
-                  future: app.transactions.getAllTransactions(),
-                  builder: (context,
-                      AsyncSnapshot<List<Trans.Transaction>> snapshot) {
-                    if (snapshot.hasError) {
-                      print(snapshot.stackTrace);
-                      return _errorContainer("Error loading transactions: " +
-                          snapshot.error.toString());
-                    } else if (!snapshot.hasData ||
-                        snapshot.data!.length == 0) {
-                      return _errorContainer(
-                          "Could not find any transactions, try creating one");
-                    } else {
-                      return FocusableActionDetector(
-                        autofocus: true,
-                        shortcuts: {
-                          newLedgerEntryKeySet: _NewLedgerEntryIntent(),
-                        },
-                        actions: {
-                          _NewLedgerEntryIntent: CallbackAction(
-                            onInvoke: (e) => _showLedgerEntryForm.call(),
-                          ),
-                        },
-                        child: TransactionList(snapshot.data!),
-                      );
-                    }
-                  },
+              SingleChildScrollView(
+                child: Card(
+                  margin: EdgeInsets.only(left: 20, right: 20),
+                  elevation: 6,
+                  child: FutureBuilder(
+                    future: app.transactions.getAllTransactions(),
+                    builder: (context,
+                        AsyncSnapshot<List<Trans.Transaction>> snapshot) {
+                      if (snapshot.hasError) {
+                        print(snapshot.stackTrace);
+                        return _errorContainer("Error loading transactions: " +
+                            snapshot.error.toString());
+                      } else if (!snapshot.hasData ||
+                          snapshot.data!.length == 0) {
+                        return _errorContainer(
+                            "Could not find any transactions, try creating one");
+                      } else {
+                        return FocusableActionDetector(
+                          autofocus: true,
+                          shortcuts: {
+                            newLedgerEntryKeySet: _NewLedgerEntryIntent(),
+                          },
+                          actions: {
+                            _NewLedgerEntryIntent: CallbackAction(
+                              onInvoke: (e) => _showLedgerEntryForm.call(),
+                            ),
+                          },
+                          child: TransactionList(snapshot.data!),
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
               Positioned(
@@ -152,100 +155,75 @@ class TransactionList extends StatefulWidget {
 }
 
 class _TransactionListState extends State<TransactionList> {
+  int dateSort = 1;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: <String, int>{
-            "Type": 1,
-            "Date": 1,
-            "Account": 2,
-            "Amount": 1,
-          }
-              .entries
-              .map<Widget>(
-                (e) => Expanded(
-                  child: Container(
-                    color: Color(0xfff0f0f0),
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(e.key),
+    return DataTable(
+      showCheckboxColumn: false,
+      onSelectAll: (b) {},
+      headingRowColor: MaterialStateProperty.all<Color>(Color(0xfff0f0f0)),
+      columns: <DataColumn>[
+        DataColumn(label: Text("Type")),
+        DataColumn(
+            label: Text("Date"),
+            onSort: (indx, asc) {
+              setState(() {
+                dateSort = dateSort * -1;
+              });
+            }),
+        DataColumn(label: Text("Account")),
+        DataColumn(label: Text("Amount"), numeric: true),
+      ],
+      rows: widget.transactions
+          .fold<List<Tuple2<Transaction, TransactionSplit>>>(
+            [],
+            (prev, el) => prev +
+                el.splits
+                    .toList()
+                    .map<Tuple2<Transaction, TransactionSplit>>(
+                      (s) => Tuple2<Transaction, TransactionSplit>(el, s),
+                    )
+                    .toList()
+              ..sort((a, b) =>
+                  dateSort * a.item1.date.date.compareTo(b.item1.date.date)),
+          )
+          .map<DataRow>((s) => TransactionRow(s.item2, s.item1))
+          .toList(),
+    );
+  }
+}
+
+class TransactionRow extends DataRow {
+  TransactionRow(this.split, this.transaction)
+      : super(
+          cells: [
+            Text(transaction.type.toString().replaceAll("_", " ")),
+            Text(DateFormatter.getAvailable(
+                    preferences.getString("date_formatter"))
+                .formatDate(transaction.date.date)),
+            Text(app.accounts.getCachedAccountByReference(split.account).name),
+            Text(
+              "\$" + split.amount.toStringAsFixed(2),
+              style: TextStyle(
+                color: split.type == TransactionSplitType.credit
+                    ? Colors.red
+                    : Colors.black,
+              ),
+            )
+          ]
+              .map<DataCell>(
+                (e) => DataCell(
+                  Padding(
+                    padding: EdgeInsets.all(5.0),
+                    child: e,
                   ),
-                  flex: e.value,
                 ),
               )
               .toList(),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.transactions.length,
-          itemBuilder: (BuildContext context, int index) {
-            return TransactionListing(
-              transaction: widget.transactions[index],
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
+          onSelectChanged: (bool? value) {},
+        );
 
-class TransactionRow extends StatelessWidget {
-  TransactionRow(this.transaction, this.split)
-      : _formatter =
-            DateFormatter.getAvailable(preferences.getString("date_formatter"));
-
-  final Transaction transaction;
   final TransactionSplit split;
-  final DateFormatter _formatter;
-
-  Widget _cell(Text contents, int flex) => Expanded(
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: contents,
-        ),
-        flex: flex,
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      _cell(Text(transaction.type.toString().replaceAll("_", " ")), 1),
-      _cell(Text(_formatter.formatDate(transaction.date.date)), 1),
-      _cell(Text(app.accounts.getCachedAccountByReference(split.account).name),
-          2),
-      _cell(
-          Text(
-            "\$" + split.amount.toStringAsFixed(2),
-            style: TextStyle(
-              color: split.type == TransactionSplitType.credit
-                  ? Colors.red
-                  : Colors.black,
-            ),
-          ),
-          1),
-    ]);
-  }
-}
-
-class TransactionListing extends StatelessWidget {
-  TransactionListing({required this.transaction});
-
-  final Trans.Transaction transaction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: ListTile(
-        onTap: () {},
-        contentPadding: EdgeInsets.zero,
-        title: Column(
-          children: (transaction.splits)
-              .map<Widget>((e) => TransactionRow(transaction, e))
-              .toList(),
-        ),
-      ),
-    );
-  }
+  final Transaction transaction;
 }
