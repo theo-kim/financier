@@ -76,7 +76,6 @@ class _AccountsPageState extends State<AccountsPage> {
                   child: SingleChildScrollView(
                     child: Card(
                       margin: EdgeInsets.only(left: 20, right: 20),
-                      elevation: 6,
                       color: Color(0xfffafafa),
                       child: AccountList(
                         type: _filteredType,

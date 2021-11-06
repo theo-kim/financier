@@ -2,11 +2,30 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/models/account.dart';
+import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/backup.dart';
 import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+
+const Set<dynamic> _accountHeaders = {
+  "Starting Balance",
+  "Account Name",
+  "Parent Account",
+  "Account Type",
+  "Memo",
+};
+
+const Set<dynamic> _transactionHeaders = {
+  "Trans ID",
+  "Date",
+  "Details",
+  "Account Name",
+  "Payer/Payee",
+  "Credit",
+  "Debit",
+};
 
 class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
@@ -34,88 +53,13 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<bool?> _showConfirmationModal(String title, String content) {
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            child: Text("Proceed"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, false);
-            },
-            child: Text("Cancel"),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showRestoreAccountMenu() {
     showDialog<_RestorationResult>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Select a backup to restore"),
-        content: Text(
-            "Your backup must be a csv file containing the list of accounts and their properties that you would like to restore, accounts with the same name as an existing account will be ignored."),
-        actions: [
-          ElevatedButton(
-            onPressed: () async {
-              // Get the .csv file from the system
-              FilePickerResult? result = await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ["csv"],
-              );
-              if (result != null && result.count > 0) {
-                try {
-                  List<Account> restored = await restoreAccounts(
-                    result,
-                    (warning) => _showConfirmationModal("Warning", warning),
-                  );
-
-                  Navigator.pop(
-                      context,
-                      _RestorationResult(
-                        _RestorationStatus.Success,
-                        restored,
-                      ));
-                } on BackupException catch (e) {
-                  Navigator.pop(
-                      context,
-                      _RestorationResult(
-                        _RestorationStatus.Fail,
-                        e.toString(),
-                      ));
-                }
-              } else {
-                Navigator.pop(
-                    context,
-                    _RestorationResult(
-                      _RestorationStatus.Cancelled,
-                      null,
-                    ));
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(5.0),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Padding(
-                  padding: EdgeInsets.only(right: 5.0),
-                  child: Icon(Icons.upload_file),
-                ),
-                Text("Choose Backup"),
-              ]),
-            ),
-          ),
-        ],
+      builder: (context) => RestoreDialog<Account>(
+        title: "Select a backup to restore",
+        content:
+            "Your backup must be a csv file containing the list of accounts and their properties that you would like to restore, accounts with the same name as an existing account will be ignored.",
       ),
     ).then((result) {
       if (result == null || result.status == _RestorationStatus.Cancelled) {
@@ -129,11 +73,23 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showRestoreTransactionMenu() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Not yet implemented"),
+    showDialog<_RestorationResult>(
+      context: context,
+      builder: (context) => RestoreDialog<Transaction>(
+        title: "Select a backup to restore",
+        content:
+            "Your backup must be a csv file containing the list of transactions and their properties that you would like to restore.",
       ),
-    );
+    ).then((result) {
+      if (result == null || result.status == _RestorationStatus.Cancelled) {
+      } else if (result.status == _RestorationStatus.Fail) {
+        _showInfoModal("Error", result.data as String);
+      } else if (result.status == _RestorationStatus.Success) {
+        int n = (result.data as List<Transaction>).length;
+        _showInfoModal(
+            "Success!", "Restored " + n.toString() + " transactions!");
+      }
+    });
   }
 
   void _showRestoreMenu() {
@@ -169,9 +125,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final currentDateSetting =
-    //     DateFormatter.getAvailable(preferences.getString("date_formatter"));
-    // print(currentDateSetting);
     return Column(
       children: [
         StandardAppBar(title: "Settings"),
@@ -264,6 +217,105 @@ class _SettingsPageState extends State<SettingsPage> {
             }).toList(),
           ),
         )
+      ],
+    );
+  }
+}
+
+class RestoreDialog<T> extends StatelessWidget {
+  RestoreDialog({
+    required this.title,
+    required this.content,
+  });
+
+  final String title;
+  final String content;
+
+  Future<bool?> _showConfirmationModal(
+      BuildContext context, String title, String content) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: Text("Proceed"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        ElevatedButton(
+          onPressed: () async {
+            // Get the .csv file from the system
+            FilePickerResult? result = await FilePicker.platform.pickFiles(
+              type: FileType.custom,
+              allowedExtensions: ["csv"],
+            );
+            if (result != null && result.count > 0) {
+              try {
+                Backup parsed = parseBackupFile(
+                  result,
+                  requiredHeaders:
+                      T == Account ? _accountHeaders : _transactionHeaders,
+                );
+                List<T> restored = await restore<T>(
+                  parsed,
+                  (warning) =>
+                      _showConfirmationModal(context, "Warning", warning),
+                );
+                Navigator.pop(
+                    context,
+                    _RestorationResult(
+                      _RestorationStatus.Success,
+                      restored,
+                    ));
+              } on BackupException catch (e) {
+                Navigator.pop(
+                    context,
+                    _RestorationResult(
+                      _RestorationStatus.Fail,
+                      e.toString(),
+                    ));
+              }
+            } else {
+              Navigator.pop(
+                  context,
+                  _RestorationResult(
+                    _RestorationStatus.Cancelled,
+                    null,
+                  ));
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.all(5.0),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Padding(
+                padding: EdgeInsets.only(right: 5.0),
+                child: Icon(Icons.upload_file),
+              ),
+              Text("Choose Backup"),
+            ]),
+          ),
+        ),
       ],
     );
   }

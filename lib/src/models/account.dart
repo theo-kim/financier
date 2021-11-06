@@ -20,20 +20,6 @@ class AccountType extends EnumClass {
   static Serializer<AccountType> get serializer => _$accountTypeSerializer;
 }
 
-abstract class AccountTransaction
-    implements Built<AccountTransaction, AccountTransactionBuilder> {
-  String get transaction;
-  double get runningTotal;
-  String get report;
-
-  AccountTransaction._();
-
-  factory AccountTransaction([updates(AccountTransactionBuilder b)]) =
-      _$AccountTransaction;
-  static Serializer<AccountTransaction> get serializer =>
-      _$accountTransactionSerializer;
-}
-
 abstract class Account implements Built<Account, AccountBuilder> {
   String get name;
   String? get memo;
@@ -41,7 +27,6 @@ abstract class Account implements Built<Account, AccountBuilder> {
   AccountType get type;
   String? get parent;
   BuiltList<AccountTag> get tags;
-  BuiltList<AccountTransaction>? get transactions;
 
   String get id =>
       "${type.toString()}-${name.replaceAll(" ", "_").toLowerCase()}";

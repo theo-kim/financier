@@ -14,7 +14,6 @@ Serializers _$builtTimestampSerializers =
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Account.serializer)
       ..add(AccountTag.serializer)
-      ..add(AccountTransaction.serializer)
       ..add(AccountType.serializer)
       ..add(BuiltTimestamp.serializer)
       ..add(BuiltUser.serializer)
@@ -26,9 +25,6 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(AccountTag)]),
           () => new ListBuilder<AccountTag>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(AccountTransaction)]),
-          () => new ListBuilder<AccountTransaction>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Report)]),
           () => new ListBuilder<Report>())

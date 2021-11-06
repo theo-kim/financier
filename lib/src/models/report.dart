@@ -11,6 +11,7 @@ abstract class Report implements Built<Report, ReportBuilder> {
   double get endBalance;
   BuiltTimestamp get start;
   BuiltTimestamp get end;
+  String get account;
 
   BuiltList<Report> get composite;
 

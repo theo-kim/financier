@@ -18,7 +18,7 @@ class StandardAppBar extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        elevation: 6.0,
+        elevation: 1.0,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
       ),

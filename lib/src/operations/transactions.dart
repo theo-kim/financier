@@ -1,4 +1,4 @@
-import 'package:financier/src/models/transaction.dart' as My;
+import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/datasource.dart';
 
 class TransactionActions {
@@ -6,12 +6,13 @@ class TransactionActions {
 
   DataSource data;
 
-  List<My.Transaction>? _cache;
+  List<Transaction>? _cache;
 
-  Future<List<My.Transaction>> getAllTransactions() async {
+  Future<List<Transaction>> getAllTransactions(
+      {int start = 0, int number = 10}) async {
     if (_cache != null) return _cache!;
 
-    List<My.Transaction> transactions = await data.transactions.toList();
+    List<Transaction> transactions = await data.transactions.toList();
 
     _cache = transactions;
     return transactions;
@@ -21,15 +22,27 @@ class TransactionActions {
     return data.transactions.id();
   }
 
-  Future<My.Transaction> newTransaction(
-      My.TransactionBuilder transaction) async {
+  Future<Transaction> newTransaction(TransactionBuilder transaction) async {
     transaction.id = initTransaction();
 
-    My.Transaction t = transaction.build();
+    Transaction t = transaction.build();
 
     data.transactions[t.id] = t;
 
     _cache!.add(t);
+
+    data.reports.update(t);
+
     return t;
+  }
+
+  Future<List<Transaction>> newTransactionList(
+      List<TransactionBuilder> transactions) async {
+    List<Transaction> output = [];
+    for (TransactionBuilder b in transactions) {
+      output.add(await newTransaction(b));
+    }
+
+    return output;
   }
 }

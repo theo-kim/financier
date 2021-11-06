@@ -29,6 +29,9 @@ class _$ReportSerializer implements StructuredSerializer<Report> {
       'end',
       serializers.serialize(object.end,
           specifiedType: const FullType(BuiltTimestamp)),
+      'account',
+      serializers.serialize(object.account,
+          specifiedType: const FullType(String)),
       'composite',
       serializers.serialize(object.composite,
           specifiedType:
@@ -78,6 +81,10 @@ class _$ReportSerializer implements StructuredSerializer<Report> {
                   specifiedType: const FullType(BuiltTimestamp))!
               as BuiltTimestamp);
           break;
+        case 'account':
+          result.account = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String;
+          break;
         case 'composite':
           result.composite.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
@@ -103,6 +110,8 @@ class _$Report extends Report {
   @override
   final BuiltTimestamp end;
   @override
+  final String account;
+  @override
   final BuiltList<Report> composite;
 
   factory _$Report([void Function(ReportBuilder)? updates]) =>
@@ -114,12 +123,14 @@ class _$Report extends Report {
       required this.endBalance,
       required this.start,
       required this.end,
+      required this.account,
       required this.composite})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, 'Report', 'id');
     BuiltValueNullFieldError.checkNotNull(endBalance, 'Report', 'endBalance');
     BuiltValueNullFieldError.checkNotNull(start, 'Report', 'start');
     BuiltValueNullFieldError.checkNotNull(end, 'Report', 'end');
+    BuiltValueNullFieldError.checkNotNull(account, 'Report', 'account');
     BuiltValueNullFieldError.checkNotNull(composite, 'Report', 'composite');
   }
 
@@ -139,6 +150,7 @@ class _$Report extends Report {
         endBalance == other.endBalance &&
         start == other.start &&
         end == other.end &&
+        account == other.account &&
         composite == other.composite;
   }
 
@@ -147,10 +159,12 @@ class _$Report extends Report {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, id.hashCode), previous.hashCode),
-                    endBalance.hashCode),
-                start.hashCode),
-            end.hashCode),
+                $jc(
+                    $jc($jc($jc(0, id.hashCode), previous.hashCode),
+                        endBalance.hashCode),
+                    start.hashCode),
+                end.hashCode),
+            account.hashCode),
         composite.hashCode));
   }
 
@@ -162,6 +176,7 @@ class _$Report extends Report {
           ..add('endBalance', endBalance)
           ..add('start', start)
           ..add('end', end)
+          ..add('account', account)
           ..add('composite', composite))
         .toString();
   }
@@ -191,6 +206,10 @@ class ReportBuilder implements Builder<Report, ReportBuilder> {
   BuiltTimestampBuilder get end => _$this._end ??= new BuiltTimestampBuilder();
   set end(BuiltTimestampBuilder? end) => _$this._end = end;
 
+  String? _account;
+  String? get account => _$this._account;
+  set account(String? account) => _$this._account = account;
+
   ListBuilder<Report>? _composite;
   ListBuilder<Report> get composite =>
       _$this._composite ??= new ListBuilder<Report>();
@@ -207,6 +226,7 @@ class ReportBuilder implements Builder<Report, ReportBuilder> {
       _endBalance = $v.endBalance;
       _start = $v.start.toBuilder();
       _end = $v.end.toBuilder();
+      _account = $v.account;
       _composite = $v.composite.toBuilder();
       _$v = null;
     }
@@ -236,6 +256,8 @@ class ReportBuilder implements Builder<Report, ReportBuilder> {
                   endBalance, 'Report', 'endBalance'),
               start: start.build(),
               end: end.build(),
+              account: BuiltValueNullFieldError.checkNotNull(
+                  account, 'Report', 'account'),
               composite: composite.build());
     } catch (_) {
       late String _$failedField;
@@ -244,6 +266,7 @@ class ReportBuilder implements Builder<Report, ReportBuilder> {
         start.build();
         _$failedField = 'end';
         end.build();
+
         _$failedField = 'composite';
         composite.build();
       } catch (e) {

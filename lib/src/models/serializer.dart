@@ -21,7 +21,6 @@ final Serializers builtTimestampSerializers = _$builtTimestampSerializers;
   Account,
   AccountType,
   AccountTag,
-  AccountTransaction,
   BuiltUser,
   Transaction,
   TransactionSplit,

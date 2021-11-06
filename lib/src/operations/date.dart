@@ -46,7 +46,7 @@ abstract class DateFormatter {
 class MilitaryDateFormatter extends DateFormatter {
   @override
   String formatDate(DateTime d) {
-    return "${d.day} ${month[d.month]} ${d.year}";
+    return "${d.day} ${(month[d.month - 1])} ${d.year}";
   }
 
   @override
@@ -58,15 +58,15 @@ class MilitaryDateFormatter extends DateFormatter {
         !_validMonth(parsed[1])) {
       throw "Invalid date input string";
     }
-    return DateTime(
-        int.parse(parsed[2]), month.indexOf(parsed[1]), int.parse(parsed[0]));
+    return DateTime(int.parse(parsed[2]), month.indexOf(parsed[1]) + 1,
+        int.parse(parsed[0]));
   }
 }
 
 class StandardDateFormatter extends DateFormatter {
   @override
   String formatDate(DateTime d) {
-    return "${d.month + 1}/${d.day}/${d.year}";
+    return "${d.month}/${d.day}/${d.year}";
   }
 
   @override

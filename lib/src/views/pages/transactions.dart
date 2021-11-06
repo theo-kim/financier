@@ -68,7 +68,6 @@ class TransactionPageState extends State<TransactionPage> {
               SingleChildScrollView(
                 child: Card(
                   margin: EdgeInsets.only(left: 20, right: 20),
-                  elevation: 6,
                   child: FutureBuilder(
                     future: app.transactions.getAllTransactions(),
                     builder: (context,

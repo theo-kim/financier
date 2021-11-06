@@ -32,7 +32,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
         child: Padding(
           padding: EdgeInsets.all(5.0),
           child: Material(
-            elevation: 6.0,
+            elevation: 1.0,
             borderRadius: BorderRadius.circular(20.0),
             color: Color(0xfff0f0f0),
             child: ListTileTheme(
@@ -93,7 +93,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                       data: Theme.of(context)
                           .copyWith(dividerColor: Colors.transparent),
                       child: Material(
-                        elevation: 6.0,
+                        elevation: 1.0,
                         borderRadius: BorderRadius.all(
                           Radius.circular(40.0),
                         ),

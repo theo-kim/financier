@@ -1,4 +1,5 @@
 import 'package:financier/src/models/account.dart';
+import 'package:financier/src/models/report.dart';
 import 'package:financier/src/operations/datasource.dart';
 
 Account unknownAccount = Account((b) => b
@@ -103,32 +104,6 @@ class AccountActions {
     return total;
   }
 
-  // Future<Account> addChildAccount(Account? parent, Account child) async {
-  //   // if cache isn't loaded, load it
-  //   if (_cache == null) await getAllAccounts();
-  //   // Child must exist in the database first
-  //   if (_cache!.contains(child) == false)
-  //     throw Exception("Trying to update a child which does not yet exist");
-  //   String? parentId;
-  //   if (parent != null) {
-  //     // Parent must exist in the database first
-  //     if (_cache!.contains(parent) == false)
-  //       throw Exception("Trying to update a parent which does not yet exist");
-  //     // Get the parent from the cache and update it with the reference to the child
-  //     Account p = parent.rebuild((b) => b.children.add(child.id));
-  //     // update firestore and the cache
-  //     data.accounts[p.id] = p;
-  //     _cache!.replace(parent, p);
-  //     parentId = p.id;
-  //   }
-  //   // Get the child from the cache and update it with the reference to the child
-  //   Account c = child.rebuild((b) => b..parent = parentId);
-  //   // update firestore
-  //   data.accounts[c.id] = c;
-  //   _cache!.replace(child, c);
-  //   return child;
-  // }
-
   String generateAccountPath(Account a) {
     if (a.type == AccountType.none)
       throw "Cannot generate path for nonexistent account";
@@ -169,5 +144,8 @@ class AccountActions {
     _cache!.remove(a);
     // Remove from database
     await data.accounts.delete(a.id);
+    List<Report>? reports = await data.reports.searchByAccount(a);
+    if (reports != null)
+      for (Report r in reports) await data.reports.delete(r.id);
   }
 }
