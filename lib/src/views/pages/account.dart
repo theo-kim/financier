@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
 import 'package:financier/src/components/fields/tag-adder.dart';
+import 'package:financier/src/components/modal.dart';
 import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/accounttags.dart';
 import 'package:financier/src/operations/master.dart';
@@ -36,12 +39,10 @@ class _AccountsPageState extends State<AccountsPage> {
       LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyN);
 
   void _showNewAccountForm() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) =>
           NewAccountForm(onSubmit: (n, p) => _saveAccount(n, p, context)),
-      isScrollControlled: true,
-      enableDrag: true,
     );
   }
 
@@ -437,92 +438,73 @@ class _NewAccountState extends State<NewAccountForm> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
+    return Modal(
+      onSubmit: () => _submitAccount(context),
+      acceptButtonText: "Create Account",
+      title: "Create a new account",
+      body: Form(
+        key: _formKey,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-                  AccountPropertyField(
-                    name: "Account Name",
-                    errorMessage: "Account name is required",
-                    onChanged: (String? value) =>
-                        setState(() => _account.name = value!),
-                  ),
-                  AccountPropertyField(
-                    name: "Account Memo",
-                    required: false,
-                    errorMessage: "",
-                    onChanged: (String? value) =>
-                        setState(() => _account.memo = value),
-                  ),
-                  CurrencyField(
-                    errorMessage: '',
-                    required: false,
-                    label: 'Starting Balance',
-                    onChanged: (double amount) =>
-                        setState(() => _account.startingBalance = amount),
-                  ),
-                  AccountDropdownField(
-                    label: "Parent Account",
-                    onChanged: _saveParentAccount,
-                    errorMessage: "",
-                    required: false,
-                  ),
-                  DropdownButtonFormField<AccountType>(
-                    onChanged: (AccountType? type) =>
-                        setState(() => _account.type = type),
-                    value: _account.type,
-                    validator: (t) =>
-                        t == null ? "You must specify an account type" : null,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Account Type",
-                      labelStyle: TextStyle(fontSize: 16.0),
-                      contentPadding: EdgeInsets.all(10.0),
-                    ),
-                    items: <AccountType>[
-                      AccountType.expense,
-                      AccountType.income,
-                      AccountType.liability,
-                      AccountType.asset,
-                    ]
-                        .map<DropdownMenuItem<AccountType>>((e) =>
-                            DropdownMenuItem(
-                                value: e,
-                                child: Text(e.toString().capitalize())))
-                        .toList(),
-                  ),
-                  TagAdderField(
-                    filter: _account.type,
-                    onChanged: (List<AccountTag> tags) {
-                      _account.tags =
-                          BuiltList<AccountTag>.from(tags).toBuilder();
-                    },
-                  ),
+              AccountPropertyField(
+                name: "Account Name",
+                errorMessage: "Account name is required",
+                onChanged: (String? value) =>
+                    setState(() => _account.name = value!),
+              ),
+              AccountPropertyField(
+                name: "Account Memo",
+                required: false,
+                errorMessage: "",
+                onChanged: (String? value) =>
+                    setState(() => _account.memo = value),
+              ),
+              CurrencyField(
+                errorMessage: '',
+                required: false,
+                label: 'Starting Balance',
+                onChanged: (double amount) =>
+                    setState(() => _account.startingBalance = amount),
+              ),
+              AccountDropdownField(
+                label: "Parent Account",
+                onChanged: _saveParentAccount,
+                errorMessage: "",
+                required: false,
+              ),
+              DropdownButtonFormField<AccountType>(
+                onChanged: (AccountType? type) =>
+                    setState(() => _account.type = type),
+                value: _account.type,
+                validator: (t) =>
+                    t == null ? "You must specify an account type" : null,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Account Type",
+                  labelStyle: TextStyle(fontSize: 16.0),
+                  contentPadding: EdgeInsets.all(10.0),
+                ),
+                items: <AccountType>[
+                  AccountType.expense,
+                  AccountType.income,
+                  AccountType.liability,
+                  AccountType.asset,
                 ]
-                    .map<Widget>(
-                        (e) => Padding(padding: EdgeInsets.all(10.0), child: e))
-                    .toList() +
-                <Widget>[
-                  ElevatedButton(
-                    onPressed: () => _submitAccount(context),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 10.0,
-                        bottom: 10.0,
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: Text(
-                        "Create Account",
-                      ),
-                    ),
-                  )
-                ],
-          ),
-        ),
+                    .map<DropdownMenuItem<AccountType>>((e) => DropdownMenuItem(
+                        value: e, child: Text(e.toString().capitalize())))
+                    .toList(),
+              ),
+              TagAdderField(
+                filter: _account.type,
+                onChanged: (List<AccountTag> tags) {
+                  _account.tags = BuiltList<AccountTag>.from(tags).toBuilder();
+                },
+              ),
+            ]
+                .map<Widget>(
+                    (e) => Padding(padding: EdgeInsets.all(10.0), child: e))
+                .toList()),
       ),
     );
   }

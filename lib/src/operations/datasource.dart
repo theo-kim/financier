@@ -72,18 +72,35 @@ class ReportData extends Data<Report> {
   ReportData(CollectionReference<Report> collection, DataSourceType type)
       : super(collection, type);
 
-  Future<List<Report>?> search(Tuple2<Account, DateTime> t) async {
+  Future<List<Report>?> searchByDate(Account a, DateTime t) async {
     if (this.type == DataSourceType.Local)
       throw UnimplementedError();
     else {
       QuerySnapshot<Report> snapshot = await collection
-          .where("account", isEqualTo: t.item1.id)
-          .where("start", isLessThanOrEqualTo: t.item2)
+          .where("account", isEqualTo: a.id)
+          .where("start", isLessThanOrEqualTo: t)
           .get();
       return snapshot.docs
           .map<Report>((q) => q.data())
           .toList()
-          .where((r) => r.end.date.isAfter(t.item2))
+          .where((r) => r.end.date.isAfter(t))
+          .toList();
+    }
+  }
+
+  Future<List<Report>?> searchByRange(Account a,
+      {required DateTime start, required DateTime end}) async {
+    if (this.type == DataSourceType.Local)
+      throw UnimplementedError();
+    else {
+      QuerySnapshot<Report> snapshot = await collection
+          .where("account", isEqualTo: a.id)
+          .where("start", isGreaterThanOrEqualTo: start)
+          .get();
+      return snapshot.docs
+          .map<Report>((q) => q.data())
+          .toList()
+          .where((r) => r.end.date.isBefore(end))
           .toList();
     }
   }
@@ -139,7 +156,7 @@ class ReportData extends Data<Report> {
           .where("account", isEqualTo: split.account)
           .where("start", isLessThanOrEqualTo: Timestamp.fromDate(t.date.date))
           .get();
-      if (query.size == 0 ||
+      if (query.docs.length == 0 ||
           query.docs
               .where((q) => q.data().end.date.isAfter(t.date.date))
               .isEmpty) {

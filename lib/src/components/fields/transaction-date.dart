@@ -3,12 +3,17 @@ import 'package:financier/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 
 class TransactionDateField extends StatelessWidget {
-  TransactionDateField(this.dateController,
-      {required this.onChanged, this.required = true});
+  TransactionDateField(
+    this.dateController, {
+    required this.onChanged,
+    this.required = true,
+    this.label = "Transaction Date",
+  });
 
   final TextEditingController dateController;
   final Function(DateTime? d) onChanged;
   final bool required;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class TransactionDateField extends StatelessWidget {
       },
       decoration: InputDecoration(
         border: OutlineInputBorder(),
-        labelText: "Transaction Date",
+        labelText: label,
         labelStyle: TextStyle(fontSize: 16.0),
         prefixIcon: Icon(
           Icons.calendar_today,

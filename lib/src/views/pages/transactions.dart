@@ -155,12 +155,62 @@ class TransactionList extends StatefulWidget {
 
 class _TransactionListState extends State<TransactionList> {
   int dateSort = 1;
+  bool _showCheckbox = false;
+  Set<int> selected = {};
 
   @override
   Widget build(BuildContext context) {
+    List<TransactionRow> rows = [];
+    int currentIndex = 0;
+    int maxIndex = 0;
+
+    for (Transaction t in widget.transactions) {
+      for (TransactionSplit s in t.splits) {
+        rows.add(
+          TransactionRow(
+            currentIndex,
+            s,
+            t,
+            selected: selected.contains(currentIndex),
+            onTap: (int s, bool b) {
+              setState(() {
+                if (b) {
+                  selected.add(s);
+                  _showCheckbox = true;
+                } else {
+                  selected.remove(s);
+                  if (selected.length == 0) {
+                    _showCheckbox = false;
+                  }
+                }
+              });
+            },
+          ),
+        );
+        currentIndex++;
+      }
+    }
+
+    maxIndex = currentIndex;
+
     return DataTable(
-      showCheckboxColumn: false,
-      onSelectAll: (b) {},
+      showCheckboxColumn: _showCheckbox,
+      onSelectAll: (b) {
+        if (b != null && b == true) {
+          Set<int> s = {};
+          for (int i = 0; i < maxIndex; ++i) {
+            s.add(i);
+          }
+          setState(() {
+            selected.addAll(s);
+          });
+        } else {
+          setState(() {
+            selected.clear();
+            _showCheckbox = false;
+          });
+        }
+      },
       headingRowColor: MaterialStateProperty.all<Color>(Color(0xfff0f0f0)),
       columns: <DataColumn>[
         DataColumn(label: Text("Type")),
@@ -174,28 +224,17 @@ class _TransactionListState extends State<TransactionList> {
         DataColumn(label: Text("Account")),
         DataColumn(label: Text("Amount"), numeric: true),
       ],
-      rows: widget.transactions
-          .fold<List<Tuple2<Transaction, TransactionSplit>>>(
-            [],
-            (prev, el) => prev +
-                el.splits
-                    .toList()
-                    .map<Tuple2<Transaction, TransactionSplit>>(
-                      (s) => Tuple2<Transaction, TransactionSplit>(el, s),
-                    )
-                    .toList()
-              ..sort((a, b) =>
-                  dateSort * a.item1.date.date.compareTo(b.item1.date.date)),
-          )
-          .map<DataRow>((s) => TransactionRow(s.item2, s.item1))
-          .toList(),
+      rows: rows,
     );
   }
 }
 
 class TransactionRow extends DataRow {
-  TransactionRow(this.split, this.transaction)
+  TransactionRow(this.index, this.split, this.transaction,
+      {required this.onTap, this.selected = false})
       : super(
+          selected: selected,
+          onSelectChanged: (selected) => onTap(index, selected!),
           cells: [
             Text(transaction.type.toString().replaceAll("_", " ")),
             Text(DateFormatter.getAvailable(
@@ -220,9 +259,11 @@ class TransactionRow extends DataRow {
                 ),
               )
               .toList(),
-          onSelectChanged: (bool? value) {},
         );
 
   final TransactionSplit split;
   final Transaction transaction;
+  final Function(int, bool) onTap;
+  final bool selected;
+  final int index;
 }

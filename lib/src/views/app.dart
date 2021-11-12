@@ -49,7 +49,7 @@ class _AppState extends State<MyApp> {
           return MaterialApp(
             title: 'Finacier',
             theme: ThemeData(
-              primarySwatch: Colors.yellow,
+              primarySwatch: Colors.green,
             ),
             debugShowCheckedModeBanner: false,
             home: snapshot.data! ? PrimaryStructure("/") : LoginPage(),
