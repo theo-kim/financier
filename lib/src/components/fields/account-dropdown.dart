@@ -1,6 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/operations/master.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/operations/master.dart';
 import 'package:flutter/material.dart';
 
 class AccountDropdownField extends StatefulWidget {

@@ -1,10 +1,10 @@
-import 'package:financier/src/components/appbar.dart';
-import 'package:financier/src/components/dynamic-scaffold.dart';
-import 'package:financier/src/components/navigation.dart';
-import 'package:financier/src/views/pages/account.dart';
-import 'package:financier/src/views/pages/settings.dart';
-import 'package:financier/src/views/pages/transactions.dart';
-import 'package:financier/src/views/pages/summary.dart';
+import 'package:pincher/src/components/appbar.dart';
+import 'package:pincher/src/components/dynamic-scaffold.dart';
+import 'package:pincher/src/components/navigation.dart';
+import 'package:pincher/src/views/pages/account.dart';
+import 'package:pincher/src/views/pages/settings.dart';
+import 'package:pincher/src/views/pages/transactions.dart';
+import 'package:pincher/src/views/pages/summary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

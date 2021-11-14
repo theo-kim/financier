@@ -1,12 +1,12 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:financier/src/components/fields/account-dropdown.dart';
-import 'package:financier/src/components/fields/currency.dart';
-import 'package:financier/src/components/fields/standard-field.dart';
-import 'package:financier/src/components/fields/tag-adder.dart';
-import 'package:financier/src/components/modal.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/accounttags.dart';
-import 'package:financier/src/operations/master.dart';
+import 'package:pincher/src/components/fields/account-dropdown.dart';
+import 'package:pincher/src/components/fields/currency.dart';
+import 'package:pincher/src/components/fields/standard-field.dart';
+import 'package:pincher/src/components/fields/tag-adder.dart';
+import 'package:pincher/src/components/modal.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/accounttags.dart';
+import 'package:pincher/src/operations/master.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -418,18 +418,6 @@ class AccountDetails extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // if (account.memo != null && account.memo!.length > 1)
-          //   Text("Account memo: " + account.memo!),
-          // Row(
-          //     children: <Widget>[Text("Tags: ")] +
-          //         account.tags
-          //             .map<Widget>(
-          //               (t) => Chip(
-          //                 label: Text(t.toString().replaceAll("_", " ")),
-          //               ),
-          //             )
-          //             .toList()),
-
           Row(
             children: [
               SizedBox(width: 115 - this.indent),
@@ -460,7 +448,6 @@ class AccountDetails extends StatelessWidget {
                     ))
                 .toList(),
           ),
-
           AccountList(
             parent: account,
             key: _childList,

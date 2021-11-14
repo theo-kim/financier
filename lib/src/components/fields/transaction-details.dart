@@ -1,4 +1,4 @@
-import 'package:financier/src/components/fields/standard-field.dart';
+import 'package:pincher/src/components/fields/standard-field.dart';
 import 'package:flutter/material.dart';
 
 class TransactionDetailsField extends StandardFormField {

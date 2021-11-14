@@ -1,5 +1,5 @@
-import 'package:financier/src/operations/date.dart';
-import 'package:financier/src/operations/preferences.dart';
+import 'package:pincher/src/operations/date.dart';
+import 'package:pincher/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 
 class TransactionDateField extends StatelessWidget {

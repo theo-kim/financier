@@ -1,6 +1,6 @@
-import 'package:financier/src/components/fields/transaction-type-dropdown.dart';
-import 'package:financier/src/models/timestamp.dart';
-import 'package:financier/src/operations/master.dart';
+import 'package:pincher/src/components/fields/transaction-type-dropdown.dart';
+import 'package:pincher/src/models/timestamp.dart';
+import 'package:pincher/src/operations/master.dart';
 import 'package:flutter/material.dart';
 
 import 'fields/payee-payer.dart';

@@ -1,4 +1,4 @@
-import 'package:financier/src/models/user.dart';
+import 'package:pincher/src/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -16,6 +16,10 @@ class AuthAction {
     loggedin = true;
     return credential.user;
   }
+
+  // Future<bool> isRegisteredWithEmail(String email) async {
+  //   _auth.createUserWithEmailAndPassword(email: email, password: password)
+  // }
 
   Future<User?> signInWithGoogle() async {
     GoogleSignInAccount googleSignInAccount;

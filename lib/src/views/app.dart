@@ -1,7 +1,7 @@
-import 'package:financier/src/operations/master.dart';
-import 'package:financier/src/operations/preferences.dart';
-import 'package:financier/src/views/pages/login.dart';
-import 'package:financier/src/views/primary.dart';
+import 'package:pincher/src/operations/master.dart';
+import 'package:pincher/src/operations/preferences.dart';
+import 'package:pincher/src/views/pages/login.dart';
+import 'package:pincher/src/views/primary.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +34,7 @@ class _AppState extends State<MyApp> {
           print(snapshot.error.toString());
           print(snapshot.stackTrace);
           return MaterialApp(
-              title: 'Finacier',
+              title: 'Pincher',
               theme: ThemeData(
                 primarySwatch: Colors.red,
               ),
@@ -47,7 +47,7 @@ class _AppState extends State<MyApp> {
         } else if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           return MaterialApp(
-            title: 'Finacier',
+            title: 'Pincher',
             theme: ThemeData(
               primarySwatch: Colors.green,
             ),
@@ -56,7 +56,7 @@ class _AppState extends State<MyApp> {
           );
         }
         return MaterialApp(
-          title: 'Finacier',
+          title: 'Pincher',
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),

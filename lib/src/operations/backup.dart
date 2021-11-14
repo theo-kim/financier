@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:built_collection/built_collection.dart';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/timestamp.dart';
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/master.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/timestamp.dart';
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/operations/master.dart';
 
 typedef Backup = List<Map<String, String>>;
 

@@ -1,9 +1,9 @@
 import 'package:built_value/serializer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/serializer.dart';
-import 'package:financier/src/models/transaction.dart' as Built;
-import 'package:financier/src/models/user.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/serializer.dart';
+import 'package:pincher/src/models/transaction.dart' as Built;
+import 'package:pincher/src/models/user.dart';
 
 class Converters {
   static CollectionReference<T> generic<T>(

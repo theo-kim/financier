@@ -1,5 +1,5 @@
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/accounttags.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/accounttags.dart';
 import 'package:flutter/material.dart';
 
 class TagAdderField extends StatefulWidget {

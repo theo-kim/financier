@@ -1,13 +1,13 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/accounttags.dart';
-import 'package:financier/src/models/reference.dart';
-import 'package:financier/src/models/report.dart';
-import 'package:financier/src/models/timestamp.dart';
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/models/user.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/accounttags.dart';
+import 'package:pincher/src/models/reference.dart';
+import 'package:pincher/src/models/report.dart';
+import 'package:pincher/src/models/timestamp.dart';
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/models/user.dart';
 
 part 'serializer.g.dart';
 

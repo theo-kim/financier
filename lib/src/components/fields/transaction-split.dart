@@ -1,8 +1,8 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:financier/src/components/fields/account-dropdown.dart';
-import 'package:financier/src/components/fields/currency.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/transaction.dart';
+import 'package:pincher/src/components/fields/account-dropdown.dart';
+import 'package:pincher/src/components/fields/currency.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/transaction.dart';
 import 'package:flutter/material.dart';
 
 class TransactionSplitField extends StatefulWidget {

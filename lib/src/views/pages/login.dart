@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:financier/src/components/fields/login-button.dart';
-import 'package:financier/src/operations/master.dart';
-import 'package:financier/src/views/pages/registration.dart';
-import 'package:financier/src/views/primary.dart';
+import 'package:pincher/src/components/fields/login-button.dart';
+import 'package:pincher/src/operations/master.dart';
+import 'package:pincher/src/views/pages/registration.dart';
+import 'package:pincher/src/views/primary.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -13,6 +13,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _textFieldValueHolder = TextEditingController();
+
+  // bool _checkEmail async () {
+
+  // }
 
   @override
   Widget build(BuildContext context) {

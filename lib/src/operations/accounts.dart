@@ -1,6 +1,6 @@
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/report.dart';
-import 'package:financier/src/operations/datasource.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/report.dart';
+import 'package:pincher/src/operations/datasource.dart';
 
 Account unknownAccount = Account((b) => b
   ..parent = null

@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:financier/src/components/appbar.dart';
-import 'package:financier/src/components/fields/account-dropdown.dart';
-import 'package:financier/src/components/fields/transaction-date.dart';
-import 'package:financier/src/components/modal.dart';
+import 'package:pincher/src/components/appbar.dart';
+import 'package:pincher/src/components/fields/account-dropdown.dart';
+import 'package:pincher/src/components/fields/transaction-date.dart';
+import 'package:pincher/src/components/modal.dart';
 import 'package:flutter/material.dart';
 
 class SummaryPage extends StatefulWidget {

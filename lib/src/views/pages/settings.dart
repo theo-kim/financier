@@ -1,11 +1,11 @@
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:financier/src/components/appbar.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/backup.dart';
-import 'package:financier/src/operations/date.dart';
-import 'package:financier/src/operations/preferences.dart';
+import 'package:pincher/src/components/appbar.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/operations/backup.dart';
+import 'package:pincher/src/operations/date.dart';
+import 'package:pincher/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 

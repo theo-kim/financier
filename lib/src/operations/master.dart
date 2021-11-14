@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:financier/src/models/user.dart';
-import 'package:financier/src/operations/accounts.dart';
-import 'package:financier/src/operations/converters.dart';
-import 'package:financier/src/operations/datasource.dart';
-import 'package:financier/src/operations/transactions.dart';
-import 'package:financier/src/operations/auth.dart';
+import 'package:pincher/src/models/user.dart';
+import 'package:pincher/src/operations/accounts.dart';
+import 'package:pincher/src/operations/converters.dart';
+import 'package:pincher/src/operations/datasource.dart';
+import 'package:pincher/src/operations/transactions.dart';
+import 'package:pincher/src/operations/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 enum OperationsMode {

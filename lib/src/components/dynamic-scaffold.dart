@@ -1,4 +1,4 @@
-import 'package:financier/src/components/navigation.dart';
+import 'package:pincher/src/components/navigation.dart';
 import 'package:flutter/material.dart';
 
 class DynamicScaffold extends StatefulWidget {

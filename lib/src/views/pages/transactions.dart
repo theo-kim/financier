@@ -1,10 +1,10 @@
-import 'package:financier/src/components/datatable.dart';
-import 'package:financier/src/components/transaction-entry-form.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/date.dart';
-import 'package:financier/src/operations/master.dart';
-import 'package:financier/src/operations/preferences.dart';
+import 'package:pincher/src/components/datatable.dart';
+import 'package:pincher/src/components/transaction-entry-form.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/operations/date.dart';
+import 'package:pincher/src/operations/master.dart';
+import 'package:pincher/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';

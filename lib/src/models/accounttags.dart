@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
-import 'package:financier/src/models/account.dart';
+import 'package:pincher/src/models/account.dart';
 
 part 'accounttags.g.dart';
 

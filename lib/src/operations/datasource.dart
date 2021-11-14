@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:financier/src/models/account.dart';
-import 'package:financier/src/models/report.dart';
-import 'package:financier/src/models/timestamp.dart';
-import 'package:financier/src/models/transaction.dart' as Built;
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/models/user.dart';
-import 'package:financier/src/operations/converters.dart';
+import 'package:pincher/src/models/account.dart';
+import 'package:pincher/src/models/report.dart';
+import 'package:pincher/src/models/timestamp.dart';
+import 'package:pincher/src/models/transaction.dart' as Built;
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/models/user.dart';
+import 'package:pincher/src/operations/converters.dart';
 import 'package:tuple/tuple.dart';
 
 enum DataSourceType {

@@ -1,4 +1,4 @@
-name: financier
+name: pincher
 description: A cross platform app to manage finances through budgetting and expense reporting (QuickBooks for the 21st century)
 
 # The following line prevents the package from being accidentally published to
@@ -55,7 +55,13 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
+flutter_icons:
+  web: true
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/1x/icon.png"
 # The following section is specific to Flutter.
 flutter:
   

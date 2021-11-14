@@ -1,6 +1,6 @@
-import 'package:financier/src/models/report.dart';
-import 'package:financier/src/models/transaction.dart';
-import 'package:financier/src/operations/datasource.dart';
+import 'package:pincher/src/models/report.dart';
+import 'package:pincher/src/models/transaction.dart';
+import 'package:pincher/src/operations/datasource.dart';
 
 class ReportingActions {
   ReportingActions(this.data);
