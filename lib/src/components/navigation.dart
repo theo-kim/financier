@@ -44,7 +44,10 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               selectedColor: Colors.black,
               selectedTileColor: Theme.of(context).primaryColorDark,
               child: ListTile(
-                title: Text(name),
+                title: Text(name,
+                    style: TextStyle(
+                      color: _activePage == name ? Colors.white : Colors.black,
+                    )),
                 selected: _activePage == name,
                 onTap: () {
                   widget.onPageChange(name);

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 class CurrencyField extends StatelessWidget {
-  CurrencyField(
-      {required this.onChanged,
-      this.required = true,
-      required this.errorMessage,
-      required this.label,
-      this.color = Colors.grey});
+  CurrencyField({
+    required this.onChanged,
+    this.required = true,
+    required this.errorMessage,
+    required this.label,
+    this.color = Colors.grey,
+    this.value,
+  });
 
   final void Function(double amount) onChanged;
   final bool required;
   final String errorMessage;
   final String label;
   final Color color;
+  final double? value;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +30,7 @@ class CurrencyField extends StatelessWidget {
         }
         return null;
       },
+      initialValue: this.value != null ? this.value!.toString() : null,
       style: TextStyle(color: color),
       onChanged: (String? value) {
         double v;

@@ -35,4 +35,6 @@ abstract class Account implements Built<Account, AccountBuilder> {
 
   factory Account([updates(AccountBuilder b)]) = _$Account;
   static Serializer<Account> get serializer => _$accountSerializer;
+
+  String toString() => name;
 }

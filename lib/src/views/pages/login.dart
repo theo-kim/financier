@@ -79,7 +79,8 @@ class _LoginPageState extends State<LoginPage> {
                           icon: Icon(Icons.mail, color: Colors.black),
                           label: "Continue with Email",
                           background: Color(0xffe8e8e8),
-                          textStyle: TextStyle(fontSize: 16.0),
+                          textStyle:
+                              TextStyle(fontSize: 16.0, color: Colors.black),
                         ),
                         Text(
                           "Or",

@@ -4,16 +4,19 @@ import 'package:financier/src/operations/master.dart';
 import 'package:flutter/material.dart';
 
 class AccountDropdownField extends StatefulWidget {
-  AccountDropdownField(
-      {required this.onChanged,
-      required this.errorMessage,
-      required this.label,
-      this.required = true});
+  AccountDropdownField({
+    required this.onChanged,
+    required this.errorMessage,
+    required this.label,
+    this.required = true,
+    this.initialValue,
+  });
 
   final void Function(Account?) onChanged;
   final String errorMessage;
   final String label;
   final bool required;
+  final String? initialValue;
 
   @override
   _AccountDropdownFieldState createState() => _AccountDropdownFieldState();
@@ -45,7 +48,15 @@ class _AccountDropdownFieldState extends State<AccountDropdownField> {
 
   @override
   Widget build(BuildContext context) {
+    Account? initial;
+    try {
+      initial = _accounts.firstWhere((a) => a.id == widget.initialValue);
+    } on StateError {
+      initial = null;
+    }
+
     return DropdownSearch<Account>(
+      selectedItem: widget.initialValue == null ? null : initial,
       validator: (Account? account) {
         if (widget.required && account == null) {
           return widget.errorMessage;

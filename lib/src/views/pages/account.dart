@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:built_collection/built_collection.dart';
-import 'package:financier/src/components/appbar.dart';
 import 'package:financier/src/components/fields/account-dropdown.dart';
 import 'package:financier/src/components/fields/currency.dart';
 import 'package:financier/src/components/fields/standard-field.dart';
@@ -38,6 +35,8 @@ class _AccountsPageState extends State<AccountsPage> {
   final LogicalKeySet _newAccountShortcut =
       LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyN);
 
+  bool _isLoading = true;
+
   void _showNewAccountForm() {
     showDialog(
       context: context,
@@ -64,53 +63,92 @@ class _AccountsPageState extends State<AccountsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        StandardAppBar(title: "Accounts"),
-        Expanded(
+    return Stack(
+      children: <Widget>[
+        FocusableActionDetector(
           child: Stack(
-            children: <Widget>[
-              FocusableActionDetector(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: SingleChildScrollView(
-                    child: Card(
-                      margin: EdgeInsets.only(left: 20, right: 20),
-                      color: Color(0xfffafafa),
-                      child: AccountList(
-                        type: _filteredType,
-                        key: _accountList,
-                        title: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text("Accounts"),
-                        ),
+            fit: StackFit.expand,
+            children: [
+              SingleChildScrollView(
+                padding: EdgeInsets.only(top: 67),
+                child: AccountList(
+                  type: _filteredType,
+                  key: _accountList,
+                  title: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                      "Accounts",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-                shortcuts: {
-                  _newAccountShortcut: _NewAccountIntent(),
-                },
-                autofocus: true,
-                actions: {
-                  _NewAccountIntent: CallbackAction(
-                    onInvoke: (e) => _showNewAccountForm(),
-                  ),
-                },
               ),
               Positioned(
-                bottom: 20.0,
-                right: 20.0,
-                child: FloatingActionButton(
-                  tooltip: 'New Account',
-                  child: Icon(Icons.add),
-                  onPressed: _showNewAccountForm,
+                top: 10,
+                left: 0,
+                right: 0,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: 1000,
+                    child: Material(
+                      elevation: 6.0,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                      ),
+                      color: Color(0xfff0f0f0),
+                      child: Column(children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              height: 57,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Text(
+                                    "Accounts",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // if (_isLoading) LinearProgressIndicator(),
+                      ]),
+                    ),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
+          shortcuts: {
+            _newAccountShortcut: _NewAccountIntent(),
+          },
+          autofocus: true,
+          actions: {
+            _NewAccountIntent: CallbackAction(
+              onInvoke: (e) => _showNewAccountForm(),
+            ),
+          },
         ),
+        Positioned(
+          bottom: 20.0,
+          right: 20.0,
+          child: FloatingActionButton(
+            tooltip: 'New Account',
+            child: Icon(Icons.add),
+            onPressed: _showNewAccountForm,
+          ),
+        )
       ],
     );
   }
@@ -125,6 +163,8 @@ class AccountList extends StatefulWidget {
     this.errorMsg = "Error loading accounts",
     this.emptyMsg = "Could not find any account, try creating one",
     this.msgAlignment = TextAlign.center,
+    this.renderCard = true,
+    this.indent = 0,
   });
 
   final AccountType? type;
@@ -134,6 +174,8 @@ class AccountList extends StatefulWidget {
   final String emptyMsg;
   final TextAlign msgAlignment;
   final Widget title;
+  final bool renderCard;
+  final double indent;
 
   _AccountListState createState() => _AccountListState();
 }
@@ -180,45 +222,49 @@ class _AccountListState extends State<AccountList> {
           );
         }
         List<Account> accounts = snapshot.data!;
-        return Column(
-          children: [
-            Row(
-              children: [
-                widget.title,
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.sort_by_alpha, size: 20),
+        return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          SizedBox(
+            width: 1000,
+            child: Card(
+              margin: EdgeInsets.zero,
+              elevation: widget.renderCard ? 1 : 0,
+              color: Color(0xfffafafa),
+              child: Column(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: accounts.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (BuildContext context, int index) {
+                      return AccountListing(
+                        indent: widget.indent,
+                        accountList: widget.key,
+                        account: accounts[index],
+                      );
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: accounts.length,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return AccountListing(
-                  accountList: widget.key,
-                  account: accounts[index],
-                );
-              },
-            ),
-          ],
-        );
+          ),
+        ]);
       },
     );
   }
 }
 
 class AccountListing extends StatelessWidget {
-  AccountListing({required this.account, required this.accountList});
+  AccountListing({
+    required this.account,
+    required this.accountList,
+    required this.indent,
+  });
 
   final Account account;
   final GlobalKey<_AccountListState> accountList;
+  final double indent;
 
-  Container _accountTypeBadgeGen(AccountType t) {
+  Widget _accountTypeBadgeGen(AccountType t) {
     late Color backgroundColor;
 
     switch (t) {
@@ -236,15 +282,31 @@ class AccountListing extends StatelessWidget {
         break;
     }
 
-    return Container(
-      padding: EdgeInsets.all(5.0),
-      margin: EdgeInsets.only(left: 10.0),
-      decoration: BoxDecoration(
-          border: Border.all(color: backgroundColor, width: 0.5),
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      child: Center(
-        child:
-            Text(t.toString().capitalize(), style: TextStyle(fontSize: 12.0)),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Chip(
+        backgroundColor: backgroundColor,
+        label: SizedBox(
+          width: 50.0,
+          child: Text(t.toString().capitalize(),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12.0, color: Colors.white)),
+        ),
+      ),
+    );
+  }
+
+  Widget _subdirIcon() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: SizedBox(
+        width: 75.0,
+        child: Align(
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.subdirectory_arrow_right,
+          ),
+        ),
       ),
     );
   }
@@ -258,14 +320,17 @@ class AccountListing extends StatelessWidget {
           tilePadding: EdgeInsets.only(left: 20.0, right: 20.0),
           textColor: Colors.black,
           iconColor: Colors.black,
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [Text(account.name), _accountTypeBadgeGen(account.type)],
-          ),
+          leading: this.indent > 0
+              ? _subdirIcon()
+              : _accountTypeBadgeGen(account.type),
+          title: Text(account.name),
+          subtitle: (account.memo == null || account.memo!.length == 0)
+              ? null
+              : Text(account.memo!),
           backgroundColor: Color(0xfffafafa),
           children: [
             AccountDetails(
+              indent: this.indent,
               account: this.account,
               context: context,
               accountList: this.accountList,
@@ -282,14 +347,40 @@ class AccountDetails extends StatelessWidget {
     required this.account,
     required this.context,
     required this.accountList,
+    required this.indent,
   });
 
   final Account account;
   final BuildContext context;
   final GlobalKey<_AccountListState> accountList;
+  final double indent;
 
   final GlobalKey<_AccountListState> _childList =
       GlobalKey<_AccountListState>();
+
+  void _editAccount() async {
+    await showDialog(
+      context: context,
+      builder: (context) => NewAccountForm(
+        disableUniqueFields: true,
+        onSubmit: (newAccount, b) async {
+          try {
+            await app.accounts.alterAccount(newAccount);
+            Navigator.of(context).pop();
+            accountList.currentState!.reload();
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Error while edit account: " + e.toString()),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        template: this.account,
+      ),
+    );
+  }
 
   void _deleteAccount() async {
     bool? confirm = await showDialog<bool>(
@@ -321,67 +412,63 @@ class AccountDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
+        left: this.indent,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (account.memo != null && account.memo!.length > 1)
-            Text("Account memo: " + account.memo!),
+          // if (account.memo != null && account.memo!.length > 1)
+          //   Text("Account memo: " + account.memo!),
+          // Row(
+          //     children: <Widget>[Text("Tags: ")] +
+          //         account.tags
+          //             .map<Widget>(
+          //               (t) => Chip(
+          //                 label: Text(t.toString().replaceAll("_", " ")),
+          //               ),
+          //             )
+          //             .toList()),
+
           Row(
-              children: <Widget>[Text("Tags: ")] +
-                  account.tags
-                      .map<Widget>(
-                        (t) => Chip(
-                          label: Text(t.toString().replaceAll("_", " ")),
-                        ),
-                      )
-                      .toList()),
-          Padding(
-            padding: EdgeInsets.zero,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    ElevatedButton.icon(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.red),
-                        foregroundColor:
-                            MaterialStateProperty.all<Color>(Colors.white),
-                      ),
-                      onPressed: _deleteAccount,
-                      icon: Icon(Icons.delete),
-                      label: Text("Delete Account"),
-                    ),
-                    ElevatedButton.icon(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Color(0xffe0e0e0)),
-                      ),
-                      onPressed: () {},
-                      icon: Icon(Icons.edit),
-                      label: Text("Edit Account"),
-                    ),
-                  ]
-                      .map<Widget>((e) => Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: e,
-                          ))
-                      .toList(),
+            children: [
+              SizedBox(width: 115 - this.indent),
+              TextButton(
+                onPressed: _deleteAccount,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Text(
+                    "Delete Account",
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
-              ],
-            ),
+              ),
+              TextButton(
+                onPressed: _editAccount,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Text(
+                    "Edit Account",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+            ]
+                .map<Widget>((e) => Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: e,
+                    ))
+                .toList(),
           ),
+
           AccountList(
             parent: account,
             key: _childList,
-            emptyMsg: "No children",
+            renderCard: false,
+            emptyMsg: "",
             msgAlignment: TextAlign.left,
             title: Text("Child Accounts"),
+            indent: indent + 35,
           ),
         ]
             .map((e) => Padding(
@@ -395,18 +482,21 @@ class AccountDetails extends StatelessWidget {
 }
 
 class NewAccountForm extends StatefulWidget {
-  NewAccountForm({required this.onSubmit});
+  NewAccountForm(
+      {required this.onSubmit,
+      this.template,
+      this.disableUniqueFields = false});
 
   final void Function(AccountBuilder newAccount, Account? parent) onSubmit;
+  final Account? template;
+  bool disableUniqueFields;
 
   _NewAccountState createState() => _NewAccountState();
 }
 
 class _NewAccountState extends State<NewAccountForm> {
   final _formKey = GlobalKey<FormState>();
-  final _account = AccountBuilder()
-    ..startingBalance = 0
-    ..parent = null;
+  late final _account;
   Account? _parentAccount;
 
   void _saveParentAccount(Account? a) {
@@ -437,6 +527,18 @@ class _NewAccountState extends State<NewAccountForm> {
   }
 
   @override
+  void initState() {
+    if (widget.template != null) {
+      _account = widget.template!.toBuilder();
+    } else {
+      _account = AccountBuilder()
+        ..startingBalance = 0
+        ..parent = null;
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Modal(
       onSubmit: () => _submitAccount(context),
@@ -448,12 +550,15 @@ class _NewAccountState extends State<NewAccountForm> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               AccountPropertyField(
+                value: _account.name,
+                enabled: !widget.disableUniqueFields,
                 name: "Account Name",
                 errorMessage: "Account name is required",
                 onChanged: (String? value) =>
                     setState(() => _account.name = value!),
               ),
               AccountPropertyField(
+                value: _account.memo,
                 name: "Account Memo",
                 required: false,
                 errorMessage: "",
@@ -461,6 +566,7 @@ class _NewAccountState extends State<NewAccountForm> {
                     setState(() => _account.memo = value),
               ),
               CurrencyField(
+                value: _account.startingBalance,
                 errorMessage: '',
                 required: false,
                 label: 'Starting Balance',
@@ -468,6 +574,7 @@ class _NewAccountState extends State<NewAccountForm> {
                     setState(() => _account.startingBalance = amount),
               ),
               AccountDropdownField(
+                initialValue: _account.parent,
                 label: "Parent Account",
                 onChanged: _saveParentAccount,
                 errorMessage: "",
@@ -515,11 +622,15 @@ class AccountPropertyField extends StandardFormField {
       {required this.name,
       required this.errorMessage,
       this.validator,
+      this.value,
+      this.enabled = true,
       required Function(String?) onChanged,
       bool required = true})
       : super(required, onChanged);
 
   final String name;
+  final bool enabled;
+  final String? value;
   final String errorMessage;
   final bool Function(String? value)? validator;
 
@@ -533,6 +644,8 @@ class AccountPropertyField extends StandardFormField {
         }
         return null;
       },
+      initialValue: this.value,
+      enabled: this.enabled,
       onChanged: this.onChanged,
       decoration: InputDecoration(
         border: OutlineInputBorder(),

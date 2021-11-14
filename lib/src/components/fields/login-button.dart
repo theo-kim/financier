@@ -30,7 +30,7 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return TextButton(
       onPressed: onPressed,
       style: _buttonShape(Colors.grey),
       child: Padding(

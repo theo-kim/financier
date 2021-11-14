@@ -206,17 +206,17 @@ class _$Account extends Account {
         tags.hashCode));
   }
 
-  @override
-  String toString() {
-    return (newBuiltValueToStringHelper('Account')
-          ..add('name', name)
-          ..add('memo', memo)
-          ..add('startingBalance', startingBalance)
-          ..add('type', type)
-          ..add('parent', parent)
-          ..add('tags', tags))
-        .toString();
-  }
+  // @override
+  // String toString() {
+  //   return (newBuiltValueToStringHelper('Account')
+  //         ..add('name', name)
+  //         ..add('memo', memo)
+  //         ..add('startingBalance', startingBalance)
+  //         ..add('type', type)
+  //         ..add('parent', parent)
+  //         ..add('tags', tags))
+  //       .toString();
+  // }
 }
 
 class AccountBuilder implements Builder<Account, AccountBuilder> {

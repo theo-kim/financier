@@ -35,6 +35,11 @@ class AccountActions {
     return accounts;
   }
 
+  List<Account> getAllCachedAccounts() {
+    if (_cache == null) throw "No cached accounts";
+    return _cache!;
+  }
+
   Future<List<Account>> getAllRootAccounts() async {
     if (_cache == null) await getAllAccounts();
 
@@ -68,6 +73,17 @@ class AccountActions {
     data.accounts[a.id] = a;
     _cache!.add(a);
     return a;
+  }
+
+  Future<Account> alterAccount(AccountBuilder account) async {
+    try {
+      Account a = account.build();
+      Account old = _cache!.firstWhere((ac) => ac.id == a.id);
+      _cache!.replace(old, a);
+      return a;
+    } on StateError {
+      throw "This account does not exist and cannot be altered";
+    }
   }
 
   Future<List<Account>> newAccountList(List<AccountBuilder> account,

@@ -1,5 +1,6 @@
-import 'package:financier/src/components/appbar.dart';
+import 'package:financier/src/components/datatable.dart';
 import 'package:financier/src/components/transaction-entry-form.dart';
+import 'package:financier/src/models/account.dart';
 import 'package:financier/src/models/transaction.dart';
 import 'package:financier/src/operations/date.dart';
 import 'package:financier/src/operations/master.dart';
@@ -7,7 +8,6 @@ import 'package:financier/src/operations/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:tuple/tuple.dart';
 
 import '../../models/transaction.dart' as Trans;
 
@@ -57,89 +57,76 @@ class TransactionPageState extends State<TransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        StandardAppBar(title: "Transactions"),
-        Expanded(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              SingleChildScrollView(
-                child: Card(
-                  margin: EdgeInsets.only(left: 20, right: 20),
-                  child: FutureBuilder(
-                    future: app.transactions.getAllTransactions(),
-                    builder: (context,
-                        AsyncSnapshot<List<Trans.Transaction>> snapshot) {
-                      if (snapshot.hasError) {
-                        print(snapshot.stackTrace);
-                        return _errorContainer("Error loading transactions: " +
-                            snapshot.error.toString());
-                      } else if (!snapshot.hasData ||
-                          snapshot.data!.length == 0) {
-                        return _errorContainer(
-                            "Could not find any transactions, try creating one");
-                      } else {
-                        return FocusableActionDetector(
-                          autofocus: true,
-                          shortcuts: {
-                            newLedgerEntryKeySet: _NewLedgerEntryIntent(),
-                          },
-                          actions: {
-                            _NewLedgerEntryIntent: CallbackAction(
-                              onInvoke: (e) => _showLedgerEntryForm.call(),
-                            ),
-                          },
-                          child: TransactionList(snapshot.data!),
-                        );
-                      }
-                    },
+        FutureBuilder(
+          future: app.transactions.getAllTransactions(),
+          builder: (context, AsyncSnapshot<List<Trans.Transaction>> snapshot) {
+            if (snapshot.hasError) {
+              print(snapshot.stackTrace);
+              return _errorContainer(
+                  "Error loading transactions: " + snapshot.error.toString());
+            } else if (!snapshot.hasData || snapshot.data!.length == 0) {
+              return _errorContainer(
+                  "Could not find any transactions, try creating one");
+            } else if (snapshot.hasData) {
+              return FocusableActionDetector(
+                autofocus: true,
+                shortcuts: {
+                  newLedgerEntryKeySet: _NewLedgerEntryIntent(),
+                },
+                actions: {
+                  _NewLedgerEntryIntent: CallbackAction(
+                    onInvoke: (e) => _showLedgerEntryForm.call(),
                   ),
-                ),
+                },
+                child: TransactionList(snapshot.data!),
+              );
+            } else {
+              return TransactionList(null);
+            }
+          },
+        ),
+        Positioned(
+          bottom: 20.0,
+          right: 20.0,
+          child: SpeedDial(
+            icon: Icons.add,
+            tooltip: "Add Transaction",
+            children: [
+              SpeedDialChild(
+                child: Icon(Icons.credit_card_rounded),
+                label: "Enter Credit Card Charge",
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "Not yet implemented, use \"Manual Ledge Entry\" Option"),
+                    ),
+                  );
+                },
               ),
-              Positioned(
-                bottom: 20.0,
-                right: 20.0,
-                child: SpeedDial(
-                  icon: Icons.add,
-                  tooltip: "Add Transaction",
-                  children: [
-                    SpeedDialChild(
-                      child: Icon(Icons.credit_card_rounded),
-                      label: "Enter Credit Card Charge",
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Not yet implemented, use \"Manual Ledge Entry\" Option"),
-                          ),
-                        );
-                      },
+              SpeedDialChild(
+                child: Icon(Icons.account_balance),
+                label: "Checkbook Entry",
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "Not yet implemented, use \"Manual Ledge Entry\" Option"),
                     ),
-                    SpeedDialChild(
-                      child: Icon(Icons.account_balance),
-                      label: "Checkbook Entry",
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Not yet implemented, use \"Manual Ledge Entry\" Option"),
-                          ),
-                        );
-                      },
-                    ),
-                    SpeedDialChild(
-                      child: Icon(Icons.book),
-                      label: "Manual Ledger Entry",
-                      onTap: _showLedgerEntryForm,
-                    ),
-                  ],
-                ),
+                  );
+                },
+              ),
+              SpeedDialChild(
+                child: Icon(Icons.book),
+                label: "Manual Ledger Entry",
+                onTap: _showLedgerEntryForm,
               ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -148,7 +135,7 @@ class TransactionPageState extends State<TransactionPage> {
 class TransactionList extends StatefulWidget {
   TransactionList(this.transactions);
 
-  final List<Trans.Transaction> transactions;
+  final List<Trans.Transaction>? transactions;
 
   _TransactionListState createState() => _TransactionListState();
 }
@@ -164,7 +151,61 @@ class _TransactionListState extends State<TransactionList> {
     int currentIndex = 0;
     int maxIndex = 0;
 
-    for (Transaction t in widget.transactions) {
+    if (widget.transactions == null) {
+      return FormattedDataTable(
+        title: "Transactions",
+        onDelete: () {},
+        maxWidth: 1000,
+        filters: [
+          FilterOptions<TransactionType>(
+            name: "Type",
+            options: TransactionType.values.toList(),
+            readable: (t) => t.toString(),
+            onFiltered: (v) {},
+          ),
+          FilterOptions<Account>(
+            name: "Account",
+            options: app.accounts.getAllCachedAccounts(),
+            readable: (a) => a.name,
+            onFiltered: (v) {},
+          )
+        ],
+        checkboxHorizontalMargin: 10,
+        showCheckboxColumn: _showCheckbox,
+        onSelectAll: (b) {
+          if (b != null && b == true) {
+            Set<int> s = {};
+            for (int i = 0; i < maxIndex; ++i) {
+              s.add(i);
+            }
+            setState(() {
+              selected.addAll(s);
+            });
+          } else {
+            setState(() {
+              selected.clear();
+              _showCheckbox = false;
+            });
+          }
+        },
+        headingRowColor: Color(0xfff0f0f0),
+        columns: <DataColumn>[
+          DataColumn(label: Text("Type")),
+          DataColumn(
+              label: Text("Date"),
+              onSort: (indx, asc) {
+                setState(() {
+                  dateSort = dateSort * -1;
+                });
+              }),
+          DataColumn(label: Text("Account")),
+          DataColumn(label: Text("Amount"), numeric: true),
+        ],
+        rows: [],
+        isLoading: true,
+      );
+    }
+    for (Transaction t in widget.transactions!) {
       for (TransactionSplit s in t.splits) {
         rows.add(
           TransactionRow(
@@ -193,7 +234,27 @@ class _TransactionListState extends State<TransactionList> {
 
     maxIndex = currentIndex;
 
-    return DataTable(
+    return FormattedDataTable(
+      title: "Transactions",
+      onDelete: () {
+        selected.forEach((element) {});
+      },
+      maxWidth: 1000,
+      filters: [
+        FilterOptions<TransactionType>(
+          name: "Type",
+          options: TransactionType.values.toList(),
+          readable: (t) => t.toString(),
+          onFiltered: (v) {},
+        ),
+        FilterOptions<Account>(
+          name: "Account",
+          options: app.accounts.getAllCachedAccounts(),
+          readable: (a) => a.name,
+          onFiltered: (v) {},
+        )
+      ],
+      checkboxHorizontalMargin: 10,
       showCheckboxColumn: _showCheckbox,
       onSelectAll: (b) {
         if (b != null && b == true) {
@@ -211,7 +272,7 @@ class _TransactionListState extends State<TransactionList> {
           });
         }
       },
-      headingRowColor: MaterialStateProperty.all<Color>(Color(0xfff0f0f0)),
+      headingRowColor: Color(0xfff0f0f0),
       columns: <DataColumn>[
         DataColumn(label: Text("Type")),
         DataColumn(
