@@ -102,34 +102,39 @@ class _PrimaryStructureState extends State<PrimaryStructure> {
     );
 
     return FocusableActionDetector(
-      autofocus: true,
-      shortcuts: {
-        _backNavigateShortcut: BackNavigateIntent(),
-        _transactionNavigateShortcut: TransactionPageIntent(),
-        _accountNavigateShortcut: AccountPageIntent(),
-      },
-      actions: {
-        TransactionPageIntent: CallbackAction(
-          onInvoke: (e) => _navigateTo("/transactions", "Transactions"),
-        ),
-        AccountPageIntent: CallbackAction(
-          onInvoke: (e) => _navigateTo("/accounts", "Accounts"),
-        ),
-        BackNavigateIntent: CallbackAction(
-          onInvoke: (e) => _backNavigate(),
-        ),
-      },
-      child: DynamicScaffold(
-        key: UniqueKey(),
-        drawerBuilder: (bool isHidden) => NavigationDrawer(
-          elevated: isHidden,
-          activePage: _title,
-          onPageChange: _changePageTitle,
-          navigator: _navigatorKey,
-        ),
-        body: mainNavigator,
-        floatingActionButton: _floatingActionButton,
-      ),
-    );
+        autofocus: true,
+        shortcuts: {
+          _backNavigateShortcut: BackNavigateIntent(),
+          _transactionNavigateShortcut: TransactionPageIntent(),
+          _accountNavigateShortcut: AccountPageIntent(),
+        },
+        actions: {
+          TransactionPageIntent: CallbackAction(
+            onInvoke: (e) => _navigateTo("/transactions", "Transactions"),
+          ),
+          AccountPageIntent: CallbackAction(
+            onInvoke: (e) => _navigateTo("/accounts", "Accounts"),
+          ),
+          BackNavigateIntent: CallbackAction(
+            onInvoke: (e) => _backNavigate(),
+          ),
+        },
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.white,
+            ),
+            child: SafeArea(
+              child: DynamicScaffold(
+                key: UniqueKey(),
+                drawerBuilder: (bool isHidden) => NavigationDrawer(
+                  elevated: isHidden,
+                  activePage: _title,
+                  onPageChange: _changePageTitle,
+                  navigator: _navigatorKey,
+                ),
+                body: mainNavigator,
+                floatingActionButton: _floatingActionButton,
+              ),
+            )));
   }
 }

@@ -369,6 +369,7 @@ class _FormattedTableRowState extends State<_FormattedTableRow> {
                         vertical: 0, horizontal: widget.compress ? 8 : 16),
                     child: DefaultTextStyle(
                       style: TextStyle(
+                        color: Colors.black,
                         fontSize: widget.compress ? 12.0 : 16.0,
                       ),
                       child: c.child,
