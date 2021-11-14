@@ -98,7 +98,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         LoginButton(
                           onPressed: () {
-                            print("Logging in");
                             app.authManager.signInWithGoogle().then((u) {
                               if (u == null) throw "Null user";
                               app.initialize();

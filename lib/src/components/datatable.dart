@@ -28,6 +28,8 @@ class FormattedDataTable extends StatefulWidget {
     this.onSearch,
     required this.onDelete,
     required this.title,
+    this.isMain = false,
+    this.compress = false,
   });
 
   final List<DataColumn> columns;
@@ -42,13 +44,14 @@ class FormattedDataTable extends StatefulWidget {
   final Function(String)? onSearch;
   final Function() onDelete;
   final String title;
+  final bool isMain;
+  final bool compress;
 
   _FormattedDataTableState createState() => _FormattedDataTableState();
 }
 
 class _FormattedDataTableState extends State<FormattedDataTable> {
   bool? _isAllSelected;
-  Alignment _currentFilterAlignment = Alignment.centerRight;
   List<int> filtered = [];
 
   Widget _createHeaderCell({
@@ -59,11 +62,13 @@ class _FormattedDataTableState extends State<FormattedDataTable> {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          padding: EdgeInsets.symmetric(
+              horizontal: widget.compress ? 8.0 : 16.0, vertical: 0),
           child: DefaultTextStyle(
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: Colors.black,
+              fontSize: widget.compress ? 12.0 : 16.0,
             ),
             child: child,
           ),
@@ -107,25 +112,37 @@ class _FormattedDataTableState extends State<FormattedDataTable> {
         children: [
           Stack(
             children: [
-              AnimatedOpacity(
-                curve: Curves.easeOut,
-                opacity: (filtered.length == 0) ? 1.0 : 0.0,
-                duration: Duration(milliseconds: 500),
-                child: Row(children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 16),
-                    child: SizedBox(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          widget.title,
-                          style: TextStyle(fontSize: 20),
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: 0,
+                child: AnimatedOpacity(
+                  curve: Curves.easeOut,
+                  opacity: (filtered.length == 0) ? 1.0 : 0.0,
+                  duration: Duration(milliseconds: 500),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (widget.isMain)
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: IconButton(
+                              tooltip: 'Open Navigation',
+                              icon: Icon(Icons.menu),
+                              onPressed: () {
+                                Scaffold.of(context).openDrawer();
+                              },
+                            ),
+                          ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 16),
+                          child: Text(
+                            widget.title,
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ),
-                      ),
-                      height: 57,
-                    ),
-                  ),
-                ]),
+                      ]),
+                ),
               ),
               if (widget.filters != null)
                 AnimatedAlign(
@@ -163,12 +180,17 @@ class _FormattedDataTableState extends State<FormattedDataTable> {
                         ),
                         Flexible(
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 1000),
-                            child: Wrap(
-                              runSpacing: 5,
-                              spacing: 5,
-                              children: filterChips,
-                            ),
+                            constraints:
+                                BoxConstraints(maxWidth: 1000, maxHeight: 57),
+                            child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                children: filterChips
+                                    .map((c) => Padding(
+                                          padding: EdgeInsets.only(right: 5),
+                                          child: c,
+                                        ))
+                                    .toList()),
                           ),
                         ),
                       ],
@@ -255,6 +277,7 @@ class _FormattedDataTableState extends State<FormattedDataTable> {
     return Column(
       children: widget.rows.map<_FormattedTableRow>((r) {
         return _FormattedTableRow(
+          compress: widget.compress,
           showCheckbox: widget.showCheckboxColumn,
           cells: r.cells,
           onSelected: r.onSelectChanged,
@@ -270,7 +293,7 @@ class _FormattedDataTableState extends State<FormattedDataTable> {
       fit: StackFit.expand,
       children: [
         SingleChildScrollView(
-          padding: EdgeInsets.only(top: 124),
+          padding: EdgeInsets.only(top: 152),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -308,6 +331,7 @@ class _FormattedTableRow extends StatefulWidget {
     this.isSelected = false,
     this.showCheckbox = false,
     this.isNumeric = false,
+    this.compress = false,
   });
 
   final Function(bool?)? onSelected;
@@ -315,6 +339,7 @@ class _FormattedTableRow extends StatefulWidget {
   final List<DataCell> cells;
   final bool showCheckbox;
   final bool isNumeric;
+  final bool compress;
 
   _FormattedTableRowState createState() => _FormattedTableRowState();
 }
@@ -322,12 +347,11 @@ class _FormattedTableRow extends StatefulWidget {
 class _FormattedTableRowState extends State<_FormattedTableRow> {
   Widget _row() {
     return Row(
-      mainAxisAlignment:
-          widget.isNumeric ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: <Widget>[
             if (widget.showCheckbox)
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                padding: EdgeInsets.symmetric(
+                    vertical: 0, horizontal: widget.compress ? 8 : 16),
                 child: Checkbox(
                   value: widget.isSelected,
                   onChanged: (b) {
@@ -341,9 +365,15 @@ class _FormattedTableRowState extends State<_FormattedTableRow> {
               .map<Widget>(
                 (c) => Expanded(
                   child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                      child: c.child),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 0, horizontal: widget.compress ? 8 : 16),
+                    child: DefaultTextStyle(
+                      style: TextStyle(
+                        fontSize: widget.compress ? 12.0 : 16.0,
+                      ),
+                      child: c.child,
+                    ),
+                  ),
                 ),
               )
               .toList(),

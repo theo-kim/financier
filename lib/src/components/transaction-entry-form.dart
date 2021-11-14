@@ -22,6 +22,29 @@ class _TransactionEntryState extends State<TransactionEntry> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
 
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      if (_balanceTransaction()) {
+        _addTransaction();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Added Transaction')),
+        );
+        widget.onSubmit();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+                "Your transaction is unbalanced, ensure your credits and debits balances to zero."),
+          ),
+        );
+        setState(() {
+          _transaction.splits.clear();
+        });
+      }
+    }
+  }
+
   void _addTransaction() {
     app.transactions.newTransaction(_transaction);
   }
@@ -43,81 +66,85 @@ class _TransactionEntryState extends State<TransactionEntry> {
   Widget build(BuildContext context) {
     Widget newTransactionForm = Form(
       key: _formKey,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TransactionDateField(
-              _dateController,
-              onChanged: (DateTime? value) {
-                setState(() =>
-                    _transaction.date = BuiltTimestampBuilder()..date = value);
-              },
-            ),
-            TransactionTypeField(
-              onChanged: (t) => setState(() => _transaction.type = t),
-              errorMessage: "You must specify a transaction type",
-              label: "Transaction Type",
-            ),
-            PayeePayerFormField(
-              onChanged: (value) => setState(() => _transaction.payer = value),
-            ),
-            TransactionSplitField(
-              title: "Splits",
-              color: Colors.black,
-              onChanged: (value) {
-                _transaction.splits = value;
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  if (_balanceTransaction()) {
-                    _addTransaction();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Added Transaction')),
-                    );
-                    widget.onSubmit();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: Colors.red,
-                        content: Text(
-                            "Your transaction is unbalanced, ensure your credits and debits balances to zero."),
-                      ),
-                    );
-                    setState(() {
-                      _transaction.splits.clear();
-                    });
-                  }
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 10.0),
-                      child: Icon(Icons.receipt_long_rounded),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(
+            "Record Manual Transaction",
+            style: Theme.of(context).textTheme.headline5,
+            textAlign: TextAlign.start,
+          ),
+          TransactionDateField(
+            _dateController,
+            onChanged: (DateTime? value) {
+              setState(() =>
+                  _transaction.date = BuiltTimestampBuilder()..date = value);
+            },
+          ),
+          TransactionTypeField(
+            onChanged: (t) => setState(() => _transaction.type = t),
+            errorMessage: "You must specify a transaction type",
+            label: "Transaction Type",
+          ),
+          PayeePayerFormField(
+            onChanged: (value) => setState(() => _transaction.payer = value),
+          ),
+          TransactionSplitField(
+            title: "Splits",
+            color: Colors.black,
+            onChanged: (value) {
+              _transaction.splits = value;
+            },
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 10.0,
+                      bottom: 10.0,
+                      left: 20.0,
+                      right: 20.0,
                     ),
-                    Text("Record Transaction",
-                        style: TextStyle(fontSize: 16.0)),
-                  ],
+                    child: Text(
+                      "Cancel",
+                    ),
+                  ),
                 ),
               ),
-            )
-          ]
-              .map<Widget>(
-                (e) => Padding(
-                  padding: EdgeInsets.only(bottom: 20.0),
-                  child: e,
+              TextButton(
+                onPressed: _submitForm,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).accentColor,
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  ),
+                  padding: EdgeInsets.only(
+                    top: 10.0,
+                    bottom: 10.0,
+                    left: 20.0,
+                    right: 20.0,
+                  ),
+                  child: Text(
+                    "Record",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-              )
-              .toList(),
-        ),
+              ),
+            ],
+          ),
+        ]
+            .map<Widget>(
+              (e) => Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: e,
+              ),
+            )
+            .toList(),
       ),
     );
 

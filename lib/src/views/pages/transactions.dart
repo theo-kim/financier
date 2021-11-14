@@ -11,6 +11,16 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../../models/transaction.dart' as Trans;
 
+extension StringExtension on String {
+  String capitalizeMulti() {
+    return this
+        .split(" ")
+        .map<String>((w) => "${w[0].toUpperCase()}${w.substring(1)}")
+        .toList()
+        .join(" ");
+  }
+}
+
 // TODO: https://github.com/material-components/material-components-flutter-adaptive/blob/develop/adaptive_navigation/example/lib/default_scaffold.dart
 
 class _NewLedgerEntryIntent extends Intent {}
@@ -37,12 +47,20 @@ class TransactionPageState extends State<TransactionPage> {
       isScrollControlled: true,
       enableDrag: true,
       builder: (context) => SingleChildScrollView(
-        child: TransactionEntry(
-          onSubmit: () {
-            Navigator.of(context).pop();
-            _reload();
-          },
-        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 1000),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
+              child: TransactionEntry(
+                onSubmit: () {
+                  Navigator.of(context).pop();
+                  _reload();
+                },
+              ),
+            ),
+          )
+        ]),
       ),
     );
   }
@@ -84,7 +102,9 @@ class TransactionPageState extends State<TransactionPage> {
                 child: TransactionList(snapshot.data!),
               );
             } else {
-              return TransactionList(null);
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             }
           },
         ),
@@ -151,60 +171,8 @@ class _TransactionListState extends State<TransactionList> {
     int currentIndex = 0;
     int maxIndex = 0;
 
-    if (widget.transactions == null) {
-      return FormattedDataTable(
-        title: "Transactions",
-        onDelete: () {},
-        maxWidth: 1000,
-        filters: [
-          FilterOptions<TransactionType>(
-            name: "Type",
-            options: TransactionType.values.toList(),
-            readable: (t) => t.toString(),
-            onFiltered: (v) {},
-          ),
-          FilterOptions<Account>(
-            name: "Account",
-            options: app.accounts.getAllCachedAccounts(),
-            readable: (a) => a.name,
-            onFiltered: (v) {},
-          )
-        ],
-        checkboxHorizontalMargin: 10,
-        showCheckboxColumn: _showCheckbox,
-        onSelectAll: (b) {
-          if (b != null && b == true) {
-            Set<int> s = {};
-            for (int i = 0; i < maxIndex; ++i) {
-              s.add(i);
-            }
-            setState(() {
-              selected.addAll(s);
-            });
-          } else {
-            setState(() {
-              selected.clear();
-              _showCheckbox = false;
-            });
-          }
-        },
-        headingRowColor: Color(0xfff0f0f0),
-        columns: <DataColumn>[
-          DataColumn(label: Text("Type")),
-          DataColumn(
-              label: Text("Date"),
-              onSort: (indx, asc) {
-                setState(() {
-                  dateSort = dateSort * -1;
-                });
-              }),
-          DataColumn(label: Text("Account")),
-          DataColumn(label: Text("Amount"), numeric: true),
-        ],
-        rows: [],
-        isLoading: true,
-      );
-    }
+    bool isSmol = MediaQuery.of(context).size.width < 700;
+
     for (Transaction t in widget.transactions!) {
       for (TransactionSplit s in t.splits) {
         rows.add(
@@ -213,6 +181,7 @@ class _TransactionListState extends State<TransactionList> {
             s,
             t,
             selected: selected.contains(currentIndex),
+            isSmol: isSmol,
             onTap: (int s, bool b) {
               setState(() {
                 if (b) {
@@ -235,6 +204,8 @@ class _TransactionListState extends State<TransactionList> {
     maxIndex = currentIndex;
 
     return FormattedDataTable(
+      isMain: isSmol,
+      compress: isSmol,
       title: "Transactions",
       onDelete: () {
         selected.forEach((element) {});
@@ -274,7 +245,7 @@ class _TransactionListState extends State<TransactionList> {
       },
       headingRowColor: Color(0xfff0f0f0),
       columns: <DataColumn>[
-        DataColumn(label: Text("Type")),
+        if (!isSmol) DataColumn(label: Text("Type")),
         DataColumn(
             label: Text("Date"),
             onSort: (indx, asc) {
@@ -292,12 +263,16 @@ class _TransactionListState extends State<TransactionList> {
 
 class TransactionRow extends DataRow {
   TransactionRow(this.index, this.split, this.transaction,
-      {required this.onTap, this.selected = false})
+      {required this.onTap, this.selected = false, bool isSmol = false})
       : super(
           selected: selected,
           onSelectChanged: (selected) => onTap(index, selected!),
           cells: [
-            Text(transaction.type.toString().replaceAll("_", " ")),
+            if (!isSmol)
+              Text(transaction.type
+                  .toString()
+                  .replaceAll("_", " ")
+                  .capitalizeMulti()),
             Text(DateFormatter.getAvailable(
                     preferences.getString("date_formatter"))
                 .formatDate(transaction.date.date)),

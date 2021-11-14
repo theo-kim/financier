@@ -17,7 +17,7 @@ class _SummaryPageState extends State<SummaryPage> {
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.max, children: [
-      StandardAppBar(title: "Summary"),
+      StandardAppBar(title: "Summary", color: Colors.white),
       Expanded(
         child: Stack(
           fit: StackFit.expand,
@@ -69,6 +69,7 @@ class _NewReportFormState extends State<_NewReportForm>
     return Modal(
       title: "Create Report",
       bottom: TabBar(
+        isScrollable: true,
         controller: _controller,
         tabs: <Tab>[
           Tab(text: "Profit / Loss"),

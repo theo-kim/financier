@@ -39,11 +39,15 @@ class _AppState extends State<MyApp> {
                 primarySwatch: Colors.red,
               ),
               debugShowCheckedModeBanner: false,
-              home: Center(
-                  child: Text(
-                "App initialization error:" + snapshot.error.toString(),
-                style: TextStyle(fontSize: 20),
-              )));
+              home: Scaffold(
+                  body: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(
+                          child: Text(
+                        "App initialization error:" + snapshot.error.toString(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                      )))));
         } else if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           return MaterialApp(

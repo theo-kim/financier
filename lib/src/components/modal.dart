@@ -37,7 +37,7 @@ class Modal extends StatelessWidget {
               color: Theme.of(context).accentColor,
               elevation: 6.0,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
                     padding: EdgeInsets.only(
@@ -45,6 +45,7 @@ class Modal extends StatelessWidget {
                     child: Text(
                       title,
                       style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      textAlign: TextAlign.start,
                     ),
                   ),
                   if (bottom != null) bottom!,

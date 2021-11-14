@@ -70,22 +70,25 @@ class _AccountsPageState extends State<AccountsPage> {
             fit: StackFit.expand,
             children: [
               SingleChildScrollView(
-                padding: EdgeInsets.only(top: 67),
-                child: AccountList(
-                  type: _filteredType,
-                  key: _accountList,
-                  title: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      "Accounts",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                padding: EdgeInsets.only(
+                    top: 67,
+                    bottom: (MediaQuery.of(context).size.width < 700) ? 84 : 0),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 1000,
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          elevation: 1,
+                          color: Color(0xfffafafa),
+                          child: AccountList(
+                            type: _filteredType,
+                            key: _accountList,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
+                    ]),
               ),
               Positioned(
                 top: 10,
@@ -105,6 +108,17 @@ class _AccountsPageState extends State<AccountsPage> {
                       child: Column(children: [
                         Row(
                           children: [
+                            if (MediaQuery.of(context).size.width < 700)
+                              Padding(
+                                child: IconButton(
+                                  tooltip: 'Open Navigation',
+                                  icon: Icon(Icons.menu),
+                                  onPressed: () {
+                                    Scaffold.of(context).openDrawer();
+                                  },
+                                ),
+                                padding: EdgeInsets.only(left: 16),
+                              ),
                             SizedBox(
                               height: 57,
                               child: Align(
@@ -148,7 +162,7 @@ class _AccountsPageState extends State<AccountsPage> {
             child: Icon(Icons.add),
             onPressed: _showNewAccountForm,
           ),
-        )
+        ),
       ],
     );
   }
@@ -158,7 +172,6 @@ class AccountList extends StatefulWidget {
   AccountList({
     this.type,
     this.parent,
-    required this.title,
     required this.key,
     this.errorMsg = "Error loading accounts",
     this.emptyMsg = "Could not find any account, try creating one",
@@ -173,7 +186,6 @@ class AccountList extends StatefulWidget {
   final String errorMsg;
   final String emptyMsg;
   final TextAlign msgAlignment;
-  final Widget title;
   final bool renderCard;
   final double indent;
 
@@ -222,32 +234,22 @@ class _AccountListState extends State<AccountList> {
           );
         }
         List<Account> accounts = snapshot.data!;
-        return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          SizedBox(
-            width: 1000,
-            child: Card(
-              margin: EdgeInsets.zero,
-              elevation: widget.renderCard ? 1 : 0,
-              color: Color(0xfffafafa),
-              child: Column(
-                children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: accounts.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return AccountListing(
-                        indent: widget.indent,
-                        accountList: widget.key,
-                        account: accounts[index],
-                      );
-                    },
-                  ),
-                ],
-              ),
+        return Column(
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: accounts.length,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                return AccountListing(
+                  indent: widget.indent,
+                  accountList: widget.key,
+                  account: accounts[index],
+                );
+              },
             ),
-          ),
-        ]);
+          ],
+        );
       },
     );
   }
@@ -454,7 +456,6 @@ class AccountDetails extends StatelessWidget {
             renderCard: false,
             emptyMsg: "",
             msgAlignment: TextAlign.left,
-            title: Text("Child Accounts"),
             indent: indent + 35,
           ),
         ]
@@ -476,7 +477,7 @@ class NewAccountForm extends StatefulWidget {
 
   final void Function(AccountBuilder newAccount, Account? parent) onSubmit;
   final Account? template;
-  bool disableUniqueFields;
+  final bool disableUniqueFields;
 
   _NewAccountState createState() => _NewAccountState();
 }
@@ -589,11 +590,15 @@ class _NewAccountState extends State<NewAccountForm> {
                         value: e, child: Text(e.toString().capitalize())))
                     .toList(),
               ),
-              TagAdderField(
-                filter: _account.type,
-                onChanged: (List<AccountTag> tags) {
-                  _account.tags = BuiltList<AccountTag>.from(tags).toBuilder();
-                },
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: TagAdderField(
+                  filter: _account.type,
+                  onChanged: (List<AccountTag> tags) {
+                    _account.tags =
+                        BuiltList<AccountTag>.from(tags).toBuilder();
+                  },
+                ),
               ),
             ]
                 .map<Widget>(

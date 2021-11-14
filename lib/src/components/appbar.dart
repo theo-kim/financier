@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class StandardAppBar extends StatelessWidget {
-  StandardAppBar({required this.title, this.bottom});
+  StandardAppBar({required this.title, this.bottom, this.color = Colors.black});
 
   final String title;
   final PreferredSizeWidget? bottom;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class StandardAppBar extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            color: Colors.black,
+            color: this.color,
           ),
         ),
         elevation: 1.0,
